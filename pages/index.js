@@ -85,16 +85,25 @@ export default function Home() {
               ✅ {getTip()}
             </div>
             <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
-              <div>Delivery Perks:</div>
-              <div>
-                🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">Uber Eats — $20 off</a><br/>
-                🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">DoorDash — $5 off</a><br/>
-                🛒 <a href="https://inst.cr/t/c4fab097b" target="_blank" rel="noreferrer">Instacart — $10 off groceries</a>
-              </div>
+              Delivery Perks:<br />
+              🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">Uber Eats — $20 off</a><br />
+              🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">DoorDash — $5 off</a>
             </div>
           </div>
         ))}
       </div>
+
+      {results.length > 0 && (
+        <div style={{ marginTop: "3rem", paddingTop: "1rem", borderTop: "2px solid #eee" }}>
+          <h3>🛒 Need groceries?</h3>
+          <p>
+            Get <strong>$10 off</strong> your first Instacart order:<br />
+            <a href="https://inst.cr/t/c4fab097b" target="_blank" rel="noreferrer">
+              Order with Instacart
+            </a>
+          </p>
+        </div>
+      )}
     </main>
   );
 }
