@@ -4,24 +4,57 @@ export default function Home() {
   const [results, setResults] = useState([]);
   const [zip, setZip] = useState("");
 
-  const handleSearch = async () => {
-    if (!zip) return;
+  const guestTips = [
+    "Great for late check-ins",
+    "Perfect breakfast spot",
+    "Highly rated by locals",
+    "Fast delivery option",
+    "Kid-friendly and casual",
+    "Good for groups",
+    "Popular with business travelers",
+    "Vegetarian options available",
+    "Guest favorite in this area",
+    "Open late — ideal for late arrivals",
+  ];
 
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`);
-    const data = await res.json();
-    if (!data.length) return alert("ZIP not found");
+  const getTip = () => guestTips[Math.floor(Math.random() * guestTips.length)];
 
-    const { lat, lon } = data[0];
-
-    const response = await fetch(`https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10`, {
+  const fetchRestaurants = async (lat, lon) => {
+    const res = await fetch(`https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10`, {
       headers: {
         Accept: "application/json",
         Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
       },
     });
 
-    const resultData = await response.json();
-    setResults(resultData.results || []);
+    const data = await res.json();
+    setResults(data.results || []);
+  };
+
+  const handleZipSearch = async () => {
+    if (!zip) return;
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`);
+    const geoData = await geoRes.json();
+    if (!geoData.length) return alert("ZIP not found");
+
+    const { lat, lon } = geoData[0];
+    fetchRestaurants(lat, lon);
+  };
+
+  const handleLocationSearch = () => {
+    if (!navigator.geolocation) {
+      alert("Location access not supported");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        fetchRestaurants(latitude, longitude);
+      },
+      () => {
+        alert("Location access denied. Please enter a ZIP code.");
+      }
+    );
   };
 
   return (
@@ -34,26 +67,33 @@ export default function Home() {
         onChange={(e) => setZip(e.target.value)}
         style={{ padding: "0.5rem", fontSize: "1rem" }}
       />
-      <button onClick={handleSearch} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
+      <button onClick={handleZipSearch} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
         Search
       </button>
+      <div style={{ marginTop: "0.5rem" }}>
+        <button onClick={handleLocationSearch} style={{ padding: "0.5rem", fontSize: "0.9rem" }}>
+          📍 Use My Location
+        </button>
+      </div>
 
       <div style={{ marginTop: "2rem" }}>
-        {results.map((r) => {
-          const encoded = encodeURIComponent(r.name);
-          return (
-            <div key={r.fsq_id} style={{ borderBottom: "1px solid #ddd", padding: "1rem 0" }}>
-              <strong>{r.name}</strong>
-              <div>📍 {r.location?.formatted_address || r.location?.address || "Address not available"}</div>
-              <div style={{ color: "#555", fontSize: "0.9rem", marginTop: "0.25rem" }}>✅ Guest tip: Great local option</div>
-              <div style={{ marginTop: "0.5rem" }}>
-                <a href={`https://www.doordash.com/search/store/${encoded}`} target="_blank" rel="noreferrer">DoorDash</a>{" | "}
-                <a href={`https://www.ubereats.com/search?q=${encoded}`} target="_blank" rel="noreferrer">Uber Eats</a>{" | "}
-                <a href={`https://www.grubhub.com/search?searchTerm=${encoded}`} target="_blank" rel="noreferrer">Grubhub</a>
+        {results.map((r) => (
+          <div key={r.fsq_id} style={{ borderBottom: "1px solid #ddd", padding: "1rem 0" }}>
+            <strong>{r.name}</strong>
+            <div>📍 {r.location?.formatted_address || r.location?.address || "Address not available"}</div>
+            <div style={{ color: "#555", fontSize: "0.9rem", marginTop: "0.25rem" }}>
+              ✅ {getTip()}
+            </div>
+            <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
+              <div>Delivery Perks:</div>
+              <div>
+                🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">Uber Eats — $20 off</a><br/>
+                🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">DoorDash — $5 off</a><br/>
+                🛒 <a href="https://inst.cr/t/c4fab097b" target="_blank" rel="noreferrer">Instacart — $10 off groceries</a>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </main>
   );
