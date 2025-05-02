@@ -4,27 +4,39 @@ export default function Home() {
   const [results, setResults] = useState([]);
   const [zip, setZip] = useState("");
 
+  const guestTips = [
+    "Great for late check-ins",
+    "Perfect breakfast spot",
+    "Highly rated by locals",
+    "Fast delivery option",
+    "Kid-friendly and casual",
+    "Good for groups",
+    "Popular with business travelers",
+    "Vegetarian options available",
+    "Guest favorite in this area",
+    "Open late — ideal for late arrivals",
+  ];
+
+  const getTip = () => guestTips[Math.floor(Math.random() * guestTips.length)];
+
   const fetchRestaurants = async (lat, lon) => {
-    const res = await fetch(
-      `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10`,
-      {
-        headers: {
-          Accept: "application/json",
-          Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
-        },
-      }
-    );
+    const res = await fetch(`https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
+      },
+    });
+
     const data = await res.json();
     setResults(data.results || []);
   };
 
   const handleZipSearch = async () => {
     if (!zip) return;
-    const geoRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`
-    );
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`);
     const geoData = await geoRes.json();
     if (!geoData.length) return alert("ZIP not found");
+
     const { lat, lon } = geoData[0];
     fetchRestaurants(lat, lon);
   };
@@ -43,20 +55,6 @@ export default function Home() {
         alert("Location access denied. Please enter a ZIP code.");
       }
     );
-  };
-
-  const getTip = (name = "", category = "") => {
-    const n = name.toLowerCase();
-    const c = category.toLowerCase();
-
-    if (n.includes("steak") || n.includes("bistro") || c.includes("fine")) return "Upscale dinner spot";
-    if (n.includes("pizza") || c.includes("fast")) return "Great for quick bites";
-    if (n.includes("cafe") || c.includes("breakfast")) return "Perfect breakfast spot";
-    if (n.includes("bar") || n.includes("brew") || c.includes("pub")) return "Good for groups";
-    if (c.includes("vegetarian") || n.includes("vegan")) return "Vegetarian options available";
-    if (n.includes("grill") || n.includes("deli")) return "Popular with business travelers";
-
-    return "Great for late check-ins";
   };
 
   return (
@@ -82,11 +80,9 @@ export default function Home() {
         {results.map((r) => (
           <div key={r.fsq_id} style={{ borderBottom: "1px solid #ddd", padding: "1rem 0" }}>
             <strong>{r.name}</strong>
-            <div>
-              📍 {r.location?.formatted_address || r.location?.address || "Address not available"}
-            </div>
+            <div>📍 {r.location?.formatted_address || r.location?.address || "Address not available"}</div>
             <div style={{ color: "#555", fontSize: "0.9rem", marginTop: "0.25rem" }}>
-              ✅ <strong>Guest Tip:</strong> {getTip(r.name, r.categories?.[0]?.name || "")}
+              ✅ {getTip()}
             </div>
             <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
               Delivery Perks:<br />
@@ -111,4 +107,3 @@ export default function Home() {
     </main>
   );
 }
-
