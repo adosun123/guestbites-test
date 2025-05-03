@@ -4,9 +4,22 @@ export default function Home() {
   const [results, setResults] = useState([]);
   const [zip, setZip] = useState("");
 
+  const categoryIcons = {
+    "Pizza Place": "🍕",
+    "Bakery": "🥐",
+    "Steakhouse": "🥩",
+    "Sushi Restaurant": "🍣",
+    "Coffee Shop": "☕",
+    "Burger Joint": "🍔",
+    "Mexican Restaurant": "🌮",
+    "Seafood Restaurant": "🦞",
+    "Breakfast Spot": "🍳",
+    "Dessert Shop": "🍰",
+  };
+
   const fetchRestaurants = async (lat, lon) => {
     const res = await fetch(
-      `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10`,
+      `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10&fields=fsq_id,name,location,categories,hours`,
       {
         headers: {
           Accept: "application/json",
@@ -45,18 +58,30 @@ export default function Home() {
     );
   };
 
-  const getTip = (name = "", category = "") => {
+  const getTip = (name = "", category = "", hours) => {
     const n = name.toLowerCase();
     const c = category.toLowerCase();
+    let closesLate = false;
+    let closesEarly = false;
 
+    try {
+      const closingTime = hours?.regular?.[0]?.close?.hour;
+      if (closingTime < 17) closesEarly = true;
+      if (closingTime >= 21) closesLate = true;
+    } catch (e) {
+      // fallback if no hours data
+    }
+
+    if (closesEarly) return "Great for early risers";
     if (n.includes("steak") || n.includes("bistro") || c.includes("fine")) return "Upscale dinner spot";
     if (n.includes("pizza") || c.includes("fast")) return "Great for quick bites";
-    if (n.includes("cafe") || c.includes("breakfast")) return "Perfect breakfast spot";
+    if (n.includes("cafe") || c.includes("breakfast") || c.includes("bakery")) return "Perfect breakfast spot";
     if (n.includes("bar") || n.includes("brew") || c.includes("pub")) return "Good for groups";
     if (c.includes("vegetarian") || n.includes("vegan")) return "Vegetarian options available";
     if (n.includes("grill") || n.includes("deli")) return "Popular with business travelers";
+    if (closesLate) return "Great for late check-ins";
 
-    return "Great for late check-ins";
+    return "Guest favorite in this area";
   };
 
   return (
@@ -79,22 +104,27 @@ export default function Home() {
       </div>
 
       <div style={{ marginTop: "2rem" }}>
-        {results.map((r) => (
-          <div key={r.fsq_id} style={{ borderBottom: "1px solid #ddd", padding: "1rem 0" }}>
-            <strong>{r.name}</strong>
-            <div>
-              📍 {r.location?.formatted_address || r.location?.address || "Address not available"}
+        {results.map((r) => {
+          const icon = categoryIcons[r.categories?.[0]?.name] || "🍽️";
+          const tip = getTip(r.name, r.categories?.[0]?.name || "", r.hours);
+
+          return (
+            <div key={r.fsq_id} style={{ borderBottom: "1px solid #ddd", padding: "1rem 0" }}>
+              <strong>{icon} {r.name}</strong>
+              <div>
+                📍 {r.location?.formatted_address || r.location?.address || "Address not available"}
+              </div>
+              <div style={{ color: "#555", fontSize: "0.9rem", marginTop: "0.25rem" }}>
+                ✅ <strong>Guest Tip:</strong> {tip}
+              </div>
+              <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
+                Delivery Perks:<br />
+                🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">Uber Eats — $20 off</a><br />
+                🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">DoorDash — $5 off</a>
+              </div>
             </div>
-            <div style={{ color: "#555", fontSize: "0.9rem", marginTop: "0.25rem" }}>
-              ✅ <strong>Guest Tip:</strong> {getTip(r.name, r.categories?.[0]?.name || "")}
-            </div>
-            <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
-              Delivery Perks:<br />
-              🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">Uber Eats — $20 off</a><br />
-              🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">DoorDash — $5 off</a>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {results.length > 0 && (
@@ -111,4 +141,5 @@ export default function Home() {
     </main>
   );
 }
+
 
