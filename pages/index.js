@@ -73,7 +73,7 @@ export default function Home() {
     if (closesEarly) return "Great for early risers";
     if (n.includes("steak") || n.includes("bistro") || c.includes("fine")) return "Upscale dinner spot";
     if (n.includes("pizza") || c.includes("fast")) return "Great for quick bites";
-    if (n.includes("cafe") || c.includes("breakfast") || c.includes("bakery")) return "Perfect breakfast spot";
+    if (n.includes("cafe") || n.includes("breakfast") || c.includes("bakery")) return "Perfect breakfast spot";
     if (n.includes("bar") || n.includes("brew") || c.includes("pub")) return "Good for groups";
     if (c.includes("vegetarian") || n.includes("vegan")) return "Vegetarian options available";
     if (n.includes("grill") || n.includes("deli")) return "Popular with business travelers";
@@ -145,7 +145,15 @@ export default function Home() {
           </p>
         </div>
       )}
+
+      <div style={{ marginTop: "3rem", paddingTop: "2rem", borderTop: "2px solid #eee", textAlign: "center", fontSize: "0.9rem", color: "#666" }}>
+        <p>💬 Have feedback or ideas?</p>
+        <p>
+          Email us at <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
+        </p>
+      </div>
     </main>
   );
 }
 
+   
