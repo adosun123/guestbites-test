@@ -19,7 +19,7 @@ export default function Home() {
 
   const fetchRestaurants = async (lat, lon) => {
     const res = await fetch(
-      `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10&fields=fsq_id,name,location,categories,hours`,
+      `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10&fields=fsq_id,name,location,categories,hours,website`,
       {
         headers: {
           Accept: "application/json",
@@ -68,9 +68,7 @@ export default function Home() {
       const closingTime = hours?.regular?.[0]?.close?.hour;
       if (closingTime < 17) closesEarly = true;
       if (closingTime >= 21) closesLate = true;
-    } catch (e) {
-      // fallback
-    }
+    } catch (e) {}
 
     if (closesEarly) return "Great for early risers";
     if (n.includes("steak") || n.includes("bistro") || c.includes("fine")) return "Upscale dinner spot";
@@ -117,6 +115,11 @@ export default function Home() {
               <div style={{ color: "#555", fontSize: "0.9rem", marginTop: "0.25rem" }}>
                 ✅ <strong>Guest Tip:</strong> {tip}
               </div>
+              {r.website && (
+                <div style={{ marginTop: "0.5rem" }}>
+                  🌐 <a href={r.website} target="_blank" rel="noreferrer">Visit Website</a>
+                </div>
+              )}
               <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
                 Delivery Perks:<br />
                 🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">
@@ -145,5 +148,4 @@ export default function Home() {
     </main>
   );
 }
-
 
