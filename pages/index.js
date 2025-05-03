@@ -69,7 +69,7 @@ export default function Home() {
       if (closingTime < 17) closesEarly = true;
       if (closingTime >= 21) closesLate = true;
     } catch (e) {
-      // fallback if no hours data
+      // fallback
     }
 
     if (closesEarly) return "Great for early risers";
@@ -119,8 +119,12 @@ export default function Home() {
               </div>
               <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
                 Delivery Perks:<br />
-                🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">Uber Eats — $20 off</a><br />
-                🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">DoorDash — $5 off</a>
+                🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">
+                  Uber Eats — $20 off your first order
+                </a><br />
+                🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">
+                  DoorDash — $5 off your first order
+                </a>
               </div>
             </div>
           );
