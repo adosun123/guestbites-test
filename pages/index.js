@@ -179,6 +179,3 @@ export default function Home() {
 }
 
 }
-
-   
-   
