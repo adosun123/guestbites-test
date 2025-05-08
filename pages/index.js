@@ -163,15 +163,10 @@ export default function Home() {
           </p>
         </div>
       )}
-
-      <div style={{ marginTop: "3rem", paddingTop: "2rem", borderTop: "2px solid #eee", textAlign: "center", fontSize: "0.9rem", color: "#666" }}>
-        <p>💬 Are you a host or a local restaurant?</p>
-        <p>
-          <a href="mailto:hello@guestbites.com">Partner with GuestBites</a> — we’d love to hear from you.
-        </p>
-        <p style={{ marginTop: "1rem", fontSize: "0.85rem", color: "#777" }}>
-        </p>
-      </div>
+      <div style={{ marginTop: "3rem", textAlign: "center", color: "#777", fontSize: "0.85rem" }}>
+  🚀 Built by <strong>GuestBites</strong> — we’re in beta and would love your feedback!<br />
+  <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
+</div>
     </main>
   );
 }
