@@ -170,7 +170,6 @@ export default function Home() {
           <a href="mailto:hello@guestbites.com">Partner with GuestBites</a> — we’d love to hear from you.
         </p>
         <p style={{ marginTop: "1rem", fontSize: "0.85rem", color: "#777" }}>
-          Test version powered by Guestbites
         </p>
       </div>
     </main>
