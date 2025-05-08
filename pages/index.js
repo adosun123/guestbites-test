@@ -86,7 +86,7 @@ export default function Home() {
     <main style={{ padding: "2rem", fontFamily: "Arial", maxWidth: "600px", margin: "auto" }}>
       <h1>🍽️ GuestBites</h1>
       <p>
-        Curated local eats + delivery perks, built for short-term rental guests!
+        Local eats and delivery perks, tailored to your stay
       </p>
 
       <input
