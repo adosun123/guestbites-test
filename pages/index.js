@@ -120,15 +120,21 @@ export default function Home() {
                   🌐 <a href={r.website} target="_blank" rel="noreferrer">Visit Website</a>
                 </div>
               )}
-              <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
-                Delivery Perks:<br />
-                🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">
-                  Uber Eats — $20 off your first order
-                </a><br />
-                🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">
-                  DoorDash — $5 off your first order
-                </a>
-              </div>
+             <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
+  🎁 <strong>Exclusive Guest Deals</strong><br />
+  <ul style={{ marginTop: "0.5rem", paddingLeft: "1.2rem" }}>
+    <li>
+      🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">
+        $20 off your first Uber Eats order
+      </a>
+    </li>
+    <li>
+      🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">
+        $5 off your first DoorDash order
+      </a>
+    </li>
+  </ul>
+</div>
             </div>
           );
         })}
@@ -156,4 +162,5 @@ export default function Home() {
   );
 }
 
+   
    
