@@ -163,9 +163,11 @@ export default function Home() {
           </p>
         </div>
       )}
-      <div style={{ marginTop: "3rem", textAlign: "center", color: "#777", fontSize: "0.85rem" }}>
-  🚀 Built by <strong>GuestBites</strong> — we’re in beta and would love your feedback!<br />
-  <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
+     <div style={{ marginTop: "3rem", textAlign: "center", color: "#777", fontSize: "0.85rem" }}>
+  🚀 Built by <strong>GuestBites</strong> — we’re in beta and would love your feedback!
+  <p style={{ marginTop: "0.75rem" }}>
+    <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
+  </p>
 </div>
     </main>
   );
