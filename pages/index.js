@@ -130,7 +130,7 @@ export default function Home() {
                 </div>
               )}
               <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
-                🎁 <strong>Perks for Guests — Powered by GuestBites</strong><br />
+                🎁 <strong>Perks for Guests </strong><br />
                 <ul style={{ marginTop: "0.5rem", paddingLeft: "1.2rem" }}>
                   <li>
                     🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">
