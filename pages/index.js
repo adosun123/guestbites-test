@@ -86,8 +86,7 @@ export default function Home() {
     <main style={{ padding: "2rem", fontFamily: "Arial", maxWidth: "600px", margin: "auto" }}>
       <h1>🍽️ GuestBites</h1>
       <p>
-        <strong>Your guests, upgraded.</strong><br />
-        Curated local eats + delivery perks, built for short-term stays.
+        Curated local eats + delivery perks, built for short-term rental guests!
       </p>
 
       <input
@@ -171,7 +170,7 @@ export default function Home() {
           <a href="mailto:hello@guestbites.com">Partner with GuestBites</a> — we’d love to hear from you.
         </p>
         <p style={{ marginTop: "1rem", fontSize: "0.85rem", color: "#777" }}>
-          Test version powered Guestbites
+          Test version powered by Guestbites
         </p>
       </div>
     </main>
