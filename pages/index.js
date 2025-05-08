@@ -85,12 +85,16 @@ export default function Home() {
   return (
     <main style={{ padding: "2rem", fontFamily: "Arial", maxWidth: "600px", margin: "auto" }}>
       <h1>🍽️ GuestBites</h1>
-      <p>Curated food picks for your stay</p>
+      <p>
+        <strong>Your guests, upgraded.</strong><br />
+        Curated local eats + delivery perks, built for short-term stays.
+      </p>
+
       <input
         placeholder="Enter ZIP code"
         value={zip}
         onChange={(e) => setZip(e.target.value)}
-        style={{ padding: "0.5rem", fontSize: "1rem" }}
+        style={{ padding: "0.5rem", fontSize: "1rem", width: "60%" }}
       />
       <button onClick={handleZipSearch} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
         Search
@@ -101,7 +105,13 @@ export default function Home() {
         </button>
       </div>
 
-      <div style={{ marginTop: "2rem" }}>
+      {zip && (
+        <h2 style={{ fontSize: "1.1rem", marginTop: "2rem", marginBottom: "1rem" }}>
+          🎯 Showing results for ZIP: <strong>{zip}</strong>
+        </h2>
+      )}
+
+      <div>
         {results.map((r) => {
           const icon = categoryIcons[r.categories?.[0]?.name] || "🍽️";
           const tip = getTip(r.name, r.categories?.[0]?.name || "", r.hours);
@@ -120,21 +130,24 @@ export default function Home() {
                   🌐 <a href={r.website} target="_blank" rel="noreferrer">Visit Website</a>
                 </div>
               )}
-             <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
-  🎁 <strong>Exclusive Guest Deals</strong><br />
-  <ul style={{ marginTop: "0.5rem", paddingLeft: "1.2rem" }}>
-    <li>
-      🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">
-        $20 off your first Uber Eats order
-      </a>
-    </li>
-    <li>
-      🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">
-        $5 off your first DoorDash order
-      </a>
-    </li>
-  </ul>
-</div>
+              <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
+                🎁 <strong>Perks for Guests — Powered by GuestBites</strong><br />
+                <ul style={{ marginTop: "0.5rem", paddingLeft: "1.2rem" }}>
+                  <li>
+                    🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">
+                      $20 off your first Uber Eats order
+                    </a>
+                  </li>
+                  <li>
+                    🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">
+                      $5 off your first DoorDash order
+                    </a>
+                  </li>
+                </ul>
+                <p style={{ fontStyle: "italic", fontSize: "0.85rem", color: "#777" }}>
+                  This is a test version — more local deals coming soon!
+                </p>
+              </div>
             </div>
           );
         })}
@@ -153,13 +166,18 @@ export default function Home() {
       )}
 
       <div style={{ marginTop: "3rem", paddingTop: "2rem", borderTop: "2px solid #eee", textAlign: "center", fontSize: "0.9rem", color: "#666" }}>
-        <p>💬 Have feedback or ideas?</p>
+        <p>💬 Are you a host or a local restaurant?</p>
         <p>
-          Email us at <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
+          <a href="mailto:hello@guestbites.com">Partner with GuestBites</a> — we’d love to hear from you.
+        </p>
+        <p style={{ marginTop: "1rem", fontSize: "0.85rem", color: "#777" }}>
+          Test version powered by live restaurant data + guest perks
         </p>
       </div>
     </main>
   );
+}
+
 }
 
    
