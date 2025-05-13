@@ -1,11 +1,13 @@
+import Head from 'next/head';
+
 function MyApp({ Component, pageProps }) {
   return (
     <>
-      <head>
+      <Head>
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-PYRX4X3TPM"
-        ></script>
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -15,12 +17,11 @@ function MyApp({ Component, pageProps }) {
               gtag('config', 'G-PYRX4X3TPM');
             `,
           }}
-        ></script>
-      </head>
+        />
+      </Head>
       <Component {...pageProps} />
     </>
   );
 }
 
 export default MyApp;
-
