@@ -1,8 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [results, setResults] = useState([]);
   const [zip, setZip] = useState("");
+
+  // ✅ Add GA when component mounts
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const script1 = document.createElement("script");
+      script1.src = "https://www.googletagmanager.com/gtag/js?id=G-PYRX4X3TPM";
+      script1.async = true;
+      document.head.appendChild(script1);
+
+      const script2 = document.createElement("script");
+      script2.innerHTML = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-PYRX4X3TPM');
+      `;
+      document.head.appendChild(script2);
+    }
+  }, []);
 
   const categoryIcons = {
     "Pizza Place": "🍕",
@@ -163,12 +182,14 @@ export default function Home() {
           </p>
         </div>
       )}
-     <div style={{ marginTop: "3rem", textAlign: "center", color: "#777", fontSize: "0.85rem" }}>
-  🚀 Built by <strong>GuestBites</strong> — we’re in beta and would love your feedback!
-  <p style={{ marginTop: "0.75rem" }}>
-    <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
-  </p>
-</div>
+
+      <div style={{ marginTop: "3rem", textAlign: "center", color: "#777", fontSize: "0.85rem" }}>
+        🚀 Built by <strong>GuestBites</strong> — we’re in beta and would love your feedback!
+        <p style={{ marginTop: "0.75rem" }}>
+          <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
+        </p>
+      </div>
     </main>
   );
 }
+
