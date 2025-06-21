@@ -21,6 +21,14 @@ export default function Home() {
       `;
       document.head.appendChild(script2);
     }
+
+    // 🔁 Auto-load ZIP from URL if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const zipFromURL = urlParams.get("zip");
+    if (zipFromURL) {
+      setZip(zipFromURL);
+      handleZipSearch(zipFromURL);
+    }
   }, []);
 
   const categoryIcons = {
@@ -50,10 +58,11 @@ export default function Home() {
     setResults(data.results || []);
   };
 
-  const handleZipSearch = async () => {
-    if (!zip) return;
+  const handleZipSearch = async (overrideZip = null) => {
+    const searchZip = overrideZip || zip;
+    if (!searchZip) return;
     const geoRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`
+      `https://nominatim.openstreetmap.org/search?postalcode=${searchZip}&country=USA&format=json`
     );
     const geoData = await geoRes.json();
     if (!geoData.length) return alert("ZIP not found");
@@ -114,7 +123,7 @@ export default function Home() {
         onChange={(e) => setZip(e.target.value)}
         style={{ padding: "0.5rem", fontSize: "1rem", width: "60%" }}
       />
-      <button onClick={handleZipSearch} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
+      <button onClick={() => handleZipSearch()} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
         Search
       </button>
       <div style={{ marginTop: "0.5rem" }}>
@@ -192,4 +201,3 @@ export default function Home() {
     </main>
   );
 }
-
