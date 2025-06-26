@@ -1,32 +1,53 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Home() {
-  const [zip, setZip] = useState('');
+  const [zip, setZip] = useState("");
   const router = useRouter();
 
-  const handleGenerate = () => {
-    if (zip.length === 5) {
-      router.push(`/guide/${zip}`);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (zip.trim()) {
+      router.push(`/guide/${zip.trim()}`);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-3xl font-bold mb-4">GuestBites: Create Your Guest Guide</h1>
-      <input
-        type="text"
-        placeholder="Enter ZIP code"
-        value={zip}
-        onChange={(e) => setZip(e.target.value)}
-        className="border border-gray-300 p-2 rounded mb-4 w-64 text-center"
-      />
-      <button
-        onClick={handleGenerate}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        Generate Guide
-      </button>
+    <div style={{ padding: "2rem", fontFamily: "sans-serif", textAlign: "center" }}>
+      <h1>🎉 Create a Local Guide for Your Guests</h1>
+      <p>Enter your ZIP code to instantly generate a personalized local food page with a QR code you can print or share.</p>
+
+      <form onSubmit={handleSubmit} style={{ marginTop: "2rem" }}>
+        <input
+          type="text"
+          placeholder="Enter ZIP code (e.g., 90210)"
+          value={zip}
+          onChange={(e) => setZip(e.target.value)}
+          style={{
+            padding: "0.75rem",
+            width: "250px",
+            fontSize: "1rem",
+            borderRadius: "8px",
+            border: "1px solid #ccc"
+          }}
+        />
+        <button
+          type="submit"
+          style={{
+            marginLeft: "1rem",
+            padding: "0.75rem 1.5rem",
+            fontSize: "1rem",
+            borderRadius: "8px",
+            border: "none",
+            backgroundColor: "#0070f3",
+            color: "#fff",
+            cursor: "pointer"
+          }}
+        >
+          Generate Page
+        </button>
+      </form>
     </div>
   );
 }
+
