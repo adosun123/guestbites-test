@@ -1,203 +1,52 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Home() {
-  const [results, setResults] = useState([]);
   const [zip, setZip] = useState("");
+  const router = useRouter();
 
-  // ✅ Add GA when component mounts
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const script1 = document.createElement("script");
-      script1.src = "https://www.googletagmanager.com/gtag/js?id=G-PYRX4X3TPM";
-      script1.async = true;
-      document.head.appendChild(script1);
-
-      const script2 = document.createElement("script");
-      script2.innerHTML = `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-PYRX4X3TPM');
-      `;
-      document.head.appendChild(script2);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (zip.trim()) {
+      router.push(`/guide/${zip.trim()}`);
     }
-
-    // 🔁 Auto-load ZIP from URL if available
-    const urlParams = new URLSearchParams(window.location.search);
-    const zipFromURL = urlParams.get("zip");
-    if (zipFromURL) {
-      setZip(zipFromURL);
-      handleZipSearch(zipFromURL);
-    }
-  }, []);
-
-  const categoryIcons = {
-    "Pizza Place": "🍕",
-    "Bakery": "🥐",
-    "Steakhouse": "🥩",
-    "Sushi Restaurant": "🍣",
-    "Coffee Shop": "☕",
-    "Burger Joint": "🍔",
-    "Mexican Restaurant": "🌮",
-    "Seafood Restaurant": "🦞",
-    "Breakfast Spot": "🍳",
-    "Dessert Shop": "🍰",
-  };
-
-  const fetchRestaurants = async (lat, lon) => {
-    const res = await fetch(
-      `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10&fields=fsq_id,name,location,categories,hours,website`,
-      {
-        headers: {
-          Accept: "application/json",
-          Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
-        },
-      }
-    );
-    const data = await res.json();
-    setResults(data.results || []);
-  };
-
-  const handleZipSearch = async (overrideZip = null) => {
-    const searchZip = overrideZip || zip;
-    if (!searchZip) return;
-    const geoRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?postalcode=${searchZip}&country=USA&format=json`
-    );
-    const geoData = await geoRes.json();
-    if (!geoData.length) return alert("ZIP not found");
-    const { lat, lon } = geoData[0];
-    fetchRestaurants(lat, lon);
-  };
-
-  const handleLocationSearch = () => {
-    if (!navigator.geolocation) {
-      alert("Location access not supported");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        fetchRestaurants(latitude, longitude);
-      },
-      () => {
-        alert("Location access denied. Please enter a ZIP code.");
-      }
-    );
-  };
-
-  const getTip = (name = "", category = "", hours) => {
-    const n = name.toLowerCase();
-    const c = category.toLowerCase();
-    let closesLate = false;
-    let closesEarly = false;
-
-    try {
-      const closingTime = hours?.regular?.[0]?.close?.hour;
-      if (closingTime < 17) closesEarly = true;
-      if (closingTime >= 21) closesLate = true;
-    } catch (e) {}
-
-    if (closesEarly) return "Great for early risers";
-    if (n.includes("steak") || n.includes("bistro") || c.includes("fine")) return "Upscale dinner spot";
-    if (n.includes("pizza") || c.includes("fast")) return "Great for quick bites";
-    if (n.includes("cafe") || n.includes("breakfast") || c.includes("bakery")) return "Perfect breakfast spot";
-    if (n.includes("bar") || n.includes("brew") || c.includes("pub")) return "Good for groups";
-    if (c.includes("vegetarian") || n.includes("vegan")) return "Vegetarian options available";
-    if (n.includes("grill") || n.includes("deli")) return "Popular with business travelers";
-    if (closesLate) return "Great for late check-ins";
-
-    return "Guest favorite in this area";
   };
 
   return (
-    <main style={{ padding: "2rem", fontFamily: "Arial", maxWidth: "600px", margin: "auto" }}>
-      <h1>🍽️ GuestBites</h1>
-      <p>
-        Local eats and delivery perks, tailored to your stay
-      </p>
+    <div style={{ padding: "2rem", fontFamily: "sans-serif", textAlign: "center" }}>
+      <h1>🎉 Create a Local Guide for Your Guests</h1>
+      <p>Enter your ZIP code to instantly generate a personalized local food page with a QR code you can print or share.</p>
 
-      <input
-        placeholder="Enter ZIP code"
-        value={zip}
-        onChange={(e) => setZip(e.target.value)}
-        style={{ padding: "0.5rem", fontSize: "1rem", width: "60%" }}
-      />
-      <button onClick={() => handleZipSearch()} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
-        Search
-      </button>
-      <div style={{ marginTop: "0.5rem" }}>
-        <button onClick={handleLocationSearch} style={{ padding: "0.5rem", fontSize: "0.9rem" }}>
-          📍 Use My Location
+      <form onSubmit={handleSubmit} style={{ marginTop: "2rem" }}>
+        <input
+          type="text"
+          placeholder="Enter ZIP code (e.g., 90210)"
+          value={zip}
+          onChange={(e) => setZip(e.target.value)}
+          style={{
+            padding: "0.75rem",
+            width: "250px",
+            fontSize: "1rem",
+            borderRadius: "8px",
+            border: "1px solid #ccc"
+          }}
+        />
+        <button
+          type="submit"
+          style={{
+            marginLeft: "1rem",
+            padding: "0.75rem 1.5rem",
+            fontSize: "1rem",
+            borderRadius: "8px",
+            border: "none",
+            backgroundColor: "#0070f3",
+            color: "#fff",
+            cursor: "pointer"
+          }}
+        >
+          Generate Page
         </button>
-      </div>
-
-      {zip && (
-        <h2 style={{ fontSize: "1.1rem", marginTop: "2rem", marginBottom: "1rem" }}>
-          🎯 Showing results for ZIP: <strong>{zip}</strong>
-        </h2>
-      )}
-
-      <div>
-        {results.map((r) => {
-          const icon = categoryIcons[r.categories?.[0]?.name] || "🍽️";
-          const tip = getTip(r.name, r.categories?.[0]?.name || "", r.hours);
-
-          return (
-            <div key={r.fsq_id} style={{ borderBottom: "1px solid #ddd", padding: "1rem 0" }}>
-              <strong>{icon} {r.name}</strong>
-              <div>
-                📍 {r.location?.formatted_address || r.location?.address || "Address not available"}
-              </div>
-              <div style={{ color: "#555", fontSize: "0.9rem", marginTop: "0.25rem" }}>
-                ✅ <strong>Guest Tip:</strong> {tip}
-              </div>
-              {r.website && (
-                <div style={{ marginTop: "0.5rem" }}>
-                  🌐 <a href={r.website} target="_blank" rel="noreferrer">Visit Website</a>
-                </div>
-              )}
-              <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
-                🎁 <strong>Perks for Guests </strong><br />
-                <ul style={{ marginTop: "0.5rem", paddingLeft: "1.2rem" }}>
-                  <li>
-                    🛵 <a href="https://ubereats.com/feed?promoCode=eats-adoramsue" target="_blank" rel="noreferrer">
-                      $20 off your first Uber Eats order
-                    </a>
-                  </li>
-                  <li>
-                    🍔 <a href="https://drd.sh/rhocnPsAKvRbkw3J" target="_blank" rel="noreferrer">
-                      $5 off your first DoorDash order
-                    </a>
-                  </li>
-                </ul>
-                <p style={{ fontStyle: "italic", fontSize: "0.85rem", color: "#777" }}>
-                  This is a test version — more local deals coming soon!
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {results.length > 0 && (
-        <div style={{ marginTop: "3rem", paddingTop: "1rem", borderTop: "2px solid #eee" }}>
-          <h3>🛒 Need groceries?</h3>
-          <p>
-            Get <strong>$10 off</strong> your first Instacart order:<br />
-            <a href="https://inst.cr/t/c4fab097b" target="_blank" rel="noreferrer">
-              Order with Instacart
-            </a>
-          </p>
-        </div>
-      )}
-
-      <div style={{ marginTop: "3rem", textAlign: "center", color: "#777", fontSize: "0.85rem" }}>
-        🚀 Built by <strong>GuestBites</strong> — we’re in beta and would love your feedback!
-        <p style={{ marginTop: "0.75rem" }}>
-          <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
-        </p>
-      </div>
-    </main>
+      </form>
+    </div>
   );
 }
