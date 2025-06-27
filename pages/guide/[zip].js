@@ -1,11 +1,11 @@
+// pages/guide/[zip].js
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 export default function ZipGuide() {
   const router = useRouter();
   const { zip } = router.query;
-  const [places, setPlaces] = useState([]);
-  const [location, setLocation] = useState(null);
+  const [groupedPlaces, setGroupedPlaces] = useState({});
 
   useEffect(() => {
     async function fetchData() {
@@ -19,11 +19,10 @@ export default function ZipGuide() {
       if (!geoData[0]) return;
 
       const { lat, lon } = geoData[0];
-      setLocation({ lat, lon });
 
       // Get restaurants from Foursquare
       const fsqRes = await fetch(
-        `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=10&fields=fsq_id,name,location,categories,hours,website`,
+        `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=20&fields=fsq_id,name,location,categories,hours,website`,
         {
           headers: {
             Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
@@ -33,7 +32,30 @@ export default function ZipGuide() {
       );
 
       const fsqData = await fsqRes.json();
-      setPlaces(fsqData.results || []);
+      const places = fsqData.results || [];
+
+      const tagMap = {
+        "🍻 Happy Hour": (place) =>
+          place.categories.some((cat) => /bar|pub|tavern|taproom/i.test(cat.name)) ||
+          /bar|pub|tavern|taproom/i.test(place.name),
+
+        "🌙 Late Night Bites": (place) => {
+          const openLate = place.hours?.display?.some((time) => /10:00 PM|11:00 PM|12:00 AM|1:00 AM|2:00 AM/.test(time));
+          return !!openLate;
+        },
+
+        "🚶 Walkable Spots": () => true,
+
+        "⭐ Locals Love": (place) => !!place.website && !!place.location?.address,
+      };
+
+      const grouped = {};
+
+      Object.keys(tagMap).forEach((tag) => {
+        grouped[tag] = places.filter(tagMap[tag]);
+      });
+
+      setGroupedPlaces(grouped);
     }
 
     fetchData();
@@ -53,24 +75,34 @@ export default function ZipGuide() {
         </ul>
       </div>
 
-      {places.length === 0 && <p>Loading nearby restaurants...</p>}
+      {Object.keys(groupedPlaces).length === 0 && <p>Loading nearby restaurants...</p>}
 
-      {places.map((place) => (
-        <div key={place.fsq_id} style={{ marginBottom: "1.5rem" }}>
-          <h3>{place.name}</h3>
-          {place.location && (
-            <p>
-              {place.location.address}, {place.location.locality}
-            </p>
+      {Object.entries(groupedPlaces).map(([tag, places]) => (
+        <div key={tag} style={{ marginBottom: "2rem" }}>
+          <h2>{tag}</h2>
+          {places.length === 0 ? (
+            <p style={{ color: "gray" }}>No results yet in this category.</p>
+          ) : (
+            places.map((place) => (
+              <div key={place.fsq_id} style={{ marginBottom: "1.5rem" }}>
+                <h3>{place.name}</h3>
+                {place.location && (
+                  <p>
+                    {place.location.address}, {place.location.locality}
+                  </p>
+                )}
+                {place.website && (
+                  <a href={place.website} target="_blank" rel="noopener noreferrer">
+                    Visit Website
+                  </a>
+                )}
+                <hr />
+              </div>
+            ))
           )}
-          {place.website && (
-            <a href={place.website} target="_blank" rel="noopener noreferrer">
-              Visit Website
-            </a>
-          )}
-          <hr />
         </div>
       ))}
     </div>
   );
 }
+
