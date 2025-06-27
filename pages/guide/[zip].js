@@ -48,10 +48,12 @@ export default function ZipGuide() {
 
           "🌙 Late Night Bites": () => false, // Temporarily disabled
 
-          "⭐ Locals Love": (place) => !!place.website && !!place.location?.address,
+          "⭐ Locals Love": (place) =>
+            place.categories?.some((cat) =>
+              /pizza|deli|ice cream|cafe|bakery|diner|bbq|grill|steakhouse|breakfast/i.test(cat.name)
+            ),
         };
 
-        // Filter into unique places per highest-priority tag
         const taggedSet = new Set();
         const grouped = {};
 
