@@ -13,19 +13,24 @@ export default function ZipGuide() {
       if (!zip) return;
 
       try {
+        console.log("Fetching for ZIP:", zip);
+
         const geoRes = await fetch(
           `https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`
         );
         const geoData = await geoRes.json();
+        console.log("Geo data:", geoData);
+
         if (!geoData[0]) {
           setError("Could not locate ZIP code.");
           return;
         }
 
         const { lat, lon } = geoData[0];
+        console.log("Lat/Lon:", lat, lon);
 
         const fsqRes = await fetch(
-          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=20&fields=fsq_id,name,location,categories,hours,website`,
+          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=20&fields=fsq_id,name,location,categories,website`,
           {
             headers: {
               Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
@@ -35,22 +40,20 @@ export default function ZipGuide() {
         );
 
         const fsqData = await fsqRes.json();
-        const places = fsqData.results || [];
-        if (places.length === 0) {
-          setError("No places found nearby.");
+        console.log("Foursquare data:", fsqData);
+
+        if (!fsqData.results) {
+          throw new Error("Foursquare API returned no results");
         }
+
+        const places = fsqData.results;
 
         const tagMap = {
           "🍻 Happy Hour": (place) =>
             place.categories?.some((cat) => /bar|pub|tavern|taproom/i.test(cat.name)) ||
             /bar|pub|tavern|taproom/i.test(place.name),
 
-          "🌙 Late Night Bites": (place) => {
-            const displayHours = place.hours?.display || [];
-            return displayHours.some((time) =>
-              /10:00 PM|11:00 PM|12:00 AM|1:00 AM|2:00 AM/.test(time)
-            );
-          },
+          "🌙 Late Night Bites": () => false, // Temporarily disabled hours tag
 
           "🚶 Walkable Spots": () => true,
 
@@ -65,7 +68,7 @@ export default function ZipGuide() {
 
         setGroupedPlaces(grouped);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Guide fetch error:", err);
         setError("Something went wrong loading the guide.");
       }
     }
@@ -118,4 +121,3 @@ export default function ZipGuide() {
     </div>
   );
 }
-
