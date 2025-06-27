@@ -48,16 +48,20 @@ export default function ZipGuide() {
 
           "🌙 Late Night Bites": () => false, // Temporarily disabled
 
-          "🚶 Walkable Spots": (place) => place.distance && place.distance <= 800,
-
           "⭐ Locals Love": (place) => !!place.website && !!place.location?.address,
         };
 
+        // Filter into unique places per highest-priority tag
+        const taggedSet = new Set();
         const grouped = {};
 
-        Object.keys(tagMap).forEach((tag) => {
-          grouped[tag] = places.filter(tagMap[tag]);
-        });
+        for (const [tag, filterFn] of Object.entries(tagMap)) {
+          grouped[tag] = places.filter((place) => {
+            const include = filterFn(place) && !taggedSet.has(place.fsq_id);
+            if (include) taggedSet.add(place.fsq_id);
+            return include;
+          });
+        }
 
         setGroupedPlaces(grouped);
       } catch (err) {
@@ -78,7 +82,6 @@ export default function ZipGuide() {
         <ul>
           <li>Happy Hour Specials</li>
           <li>Late Night Bites</li>
-          <li>Walkable Spots (within ~10 min walk)</li>
           <li>Trusted by Local Hosts</li>
         </ul>
       </div>
