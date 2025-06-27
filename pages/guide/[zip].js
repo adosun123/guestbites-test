@@ -30,7 +30,7 @@ export default function ZipGuide() {
         console.log("Lat/Lon:", lat, lon);
 
         const fsqRes = await fetch(
-          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=20&fields=fsq_id,name,location,categories,website`,
+          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=12&fields=fsq_id,name,location,categories,website,distance`,
           {
             headers: {
               Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
@@ -53,9 +53,9 @@ export default function ZipGuide() {
             place.categories?.some((cat) => /bar|pub|tavern|taproom/i.test(cat.name)) ||
             /bar|pub|tavern|taproom/i.test(place.name),
 
-          "🌙 Late Night Bites": () => false, // Temporarily disabled hours tag
+          "🌙 Late Night Bites": () => false, // Temporarily disabled
 
-          "🚶 Walkable Spots": () => true,
+          "🚶 Walkable Spots": (place) => place.distance && place.distance <= 800,
 
           "⭐ Locals Love": (place) => !!place.website && !!place.location?.address,
         };
@@ -85,7 +85,7 @@ export default function ZipGuide() {
         <ul>
           <li>Happy Hour Specials</li>
           <li>Late Night Bites</li>
-          <li>Walkable Spots</li>
+          <li>Walkable Spots (within ~10 min walk)</li>
           <li>Trusted by Local Hosts</li>
         </ul>
       </div>
