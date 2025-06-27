@@ -13,24 +13,19 @@ export default function ZipGuide() {
       if (!zip) return;
 
       try {
-        console.log("Fetching for ZIP:", zip);
-
         const geoRes = await fetch(
           `https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`
         );
         const geoData = await geoRes.json();
-        console.log("Geo data:", geoData);
-
         if (!geoData[0]) {
           setError("Could not locate ZIP code.");
           return;
         }
 
         const { lat, lon } = geoData[0];
-        console.log("Lat/Lon:", lat, lon);
 
         const fsqRes = await fetch(
-          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=12&fields=fsq_id,name,location,categories,website,distance`,
+          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=12&fields=fsq_id,name,location,categories,website,distance,rating`,
           {
             headers: {
               Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
@@ -40,8 +35,6 @@ export default function ZipGuide() {
         );
 
         const fsqData = await fsqRes.json();
-        console.log("Foursquare data:", fsqData);
-
         if (!fsqData.results) {
           throw new Error("Foursquare API returned no results");
         }
@@ -101,7 +94,9 @@ export default function ZipGuide() {
           ) : (
             places.map((place) => (
               <div key={place.fsq_id} style={{ marginBottom: "1.5rem" }}>
-                <h3>{place.name}</h3>
+                <h3>
+                  {place.name} {place.rating ? <span style={{ fontWeight: "normal" }}>— ⭐ {place.rating.toFixed(1)}/10</span> : null}
+                </h3>
                 {place.location && (
                   <p>
                     {place.location.address}, {place.location.locality}
