@@ -41,13 +41,14 @@ export default function ZipGuide() {
 
         const places = fsqData.results;
 
-        const bucketOrder = ["Breakfast", "Lunch", "Dinner", "Dessert", "Other"];
+        const bucketOrder = ["Breakfast", "Lunch", "Pizza", "Dinner", "Dessert", "Other"];
 
         const getBucket = (categories = []) => {
           const names = categories.map((c) => c.name.toLowerCase()).join(" ");
+          if (/pizza/.test(names)) return "Pizza";
           if (/coffee|cafe|bakery|diner|brunch/.test(names)) return "Breakfast";
           if (/deli|sandwich|burger|fast food|lunch/.test(names)) return "Lunch";
-          if (/pizza|grill|steak|seafood|dinner|bar/.test(names)) return "Dinner";
+          if (/grill|steak|seafood|dinner|bar/.test(names)) return "Dinner";
           if (/ice cream|dessert|chocolate|sweet|cake/.test(names)) return "Dessert";
           return "Other";
         };
@@ -83,9 +84,10 @@ export default function ZipGuide() {
   const bucketEmojis = {
     Breakfast: "🍳 Breakfast",
     Lunch: "🥪 Lunch",
-    Dinner: "🍕 Dinner",
+    Pizza: "🍕 Pizza",
+    Dinner: "🍽️ Dinner",
     Dessert: "🍰 Dessert",
-    Other: "🍽️ Other",
+    Other: "🗂️ Other",
   };
 
   return (
@@ -124,4 +126,3 @@ export default function ZipGuide() {
     </div>
   );
 }
-
