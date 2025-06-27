@@ -2,14 +2,32 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
+function decodeCustomParam(param) {
+  try {
+    return JSON.parse(decodeURIComponent(param));
+  } catch (e) {
+    return [];
+  }
+}
+
+function encodeCustomParam(data) {
+  return encodeURIComponent(JSON.stringify(data));
+}
+
 export default function ZipGuide() {
   const router = useRouter();
-  const { zip } = router.query;
+  const { zip, custom } = router.query;
   const [groupedPlaces, setGroupedPlaces] = useState({});
   const [customPlaces, setCustomPlaces] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", address: "", category: "", link: "" });
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (custom) {
+      setCustomPlaces(decodeCustomParam(custom));
+    }
+  }, [custom]);
 
   useEffect(() => {
     async function fetchData() {
@@ -95,9 +113,12 @@ export default function ZipGuide() {
   };
 
   const handleAddPlace = () => {
-    setCustomPlaces((prev) => [...prev, { ...form }]);
+    const updated = [...customPlaces, { ...form }];
+    const newParam = encodeCustomParam(updated);
+    setCustomPlaces(updated);
     setForm({ name: "", address: "", category: "", link: "" });
     setShowForm(false);
+    router.replace({ pathname: router.pathname, query: { zip, custom: newParam } }, undefined, { shallow: true });
   };
 
   return (
