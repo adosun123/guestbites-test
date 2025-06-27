@@ -45,7 +45,7 @@ export default function ZipGuide() {
 
         const getBucket = (categories = []) => {
           const names = categories.map((c) => c.name.toLowerCase()).join(" ");
-          if (/pizza/.test(names)) return "Pizza";
+          if (/pizza|pizzeria|pizza place/.test(names)) return "Pizza";
           if (/coffee|cafe|bakery|diner|brunch/.test(names)) return "Breakfast";
           if (/deli|sandwich|burger|fast food|lunch/.test(names)) return "Lunch";
           if (/grill|steak|seafood|dinner|bar|restaurant/.test(names)) return "Dinner";
