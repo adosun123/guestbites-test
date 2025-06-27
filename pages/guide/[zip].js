@@ -6,6 +6,9 @@ export default function ZipGuide() {
   const router = useRouter();
   const { zip } = router.query;
   const [groupedPlaces, setGroupedPlaces] = useState({});
+  const [customPlaces, setCustomPlaces] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", address: "", category: "", link: "" });
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -88,6 +91,13 @@ export default function ZipGuide() {
     Dinner: "🍽️ Dinner",
     Dessert: "🍰 Dessert",
     Other: "🗂️ Other",
+    Custom: "➕ Added by Host",
+  };
+
+  const handleAddPlace = () => {
+    setCustomPlaces((prev) => [...prev, { ...form }]);
+    setForm({ name: "", address: "", category: "", link: "" });
+    setShowForm(false);
   };
 
   return (
@@ -123,6 +133,74 @@ export default function ZipGuide() {
           </div>
         )
       ))}
+
+      {customPlaces.length > 0 && (
+        <div style={{ marginBottom: "2rem" }}>
+          <h2>{bucketEmojis.Custom}</h2>
+          {customPlaces.map((place, i) => (
+            <div key={i} style={{ marginBottom: "1.5rem" }}>
+              <h3>{place.name}</h3>
+              <p>{place.address}</p>
+              <p style={{ fontStyle: "italic", color: "#555" }}>🏷️ {place.category}</p>
+              {place.link && (
+                <a href={place.link} target="_blank" rel="noopener noreferrer">
+                  Visit Website
+                </a>
+              )}
+              <hr />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!showForm && (
+        <button
+          onClick={() => setShowForm(true)}
+          style={{ padding: "0.5rem 1rem", fontSize: "1rem", borderRadius: "6px", cursor: "pointer" }}
+        >
+          ➕ Add a Custom Spot
+        </button>
+      )}
+
+      {showForm && (
+        <div style={{ marginTop: "1.5rem" }}>
+          <h3>Add Your Own Favorite</h3>
+          <input
+            type="text"
+            placeholder="Name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            style={{ display: "block", marginBottom: "0.5rem", width: "100%" }}
+          />
+          <input
+            type="text"
+            placeholder="Address"
+            value={form.address}
+            onChange={(e) => setForm({ ...form, address: e.target.value })}
+            style={{ display: "block", marginBottom: "0.5rem", width: "100%" }}
+          />
+          <input
+            type="text"
+            placeholder="Category (e.g. Breakfast, Pizza)"
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            style={{ display: "block", marginBottom: "0.5rem", width: "100%" }}
+          />
+          <input
+            type="text"
+            placeholder="Website Link (optional)"
+            value={form.link}
+            onChange={(e) => setForm({ ...form, link: e.target.value })}
+            style={{ display: "block", marginBottom: "0.5rem", width: "100%" }}
+          />
+          <button
+            onClick={handleAddPlace}
+            style={{ padding: "0.5rem 1rem", borderRadius: "6px", cursor: "pointer" }}
+          >
+            ✅ Add to My Guide
+          </button>
+        </div>
+      )}
     </div>
   );
 }
