@@ -49,6 +49,14 @@ export default function ZipGuide() {
     fetchData();
   }, [zip]);
 
+  const getCategoryLabel = (categories) => {
+    if (!categories || categories.length === 0) return "";
+    return categories
+      .slice(0, 2)
+      .map((cat) => cat.name)
+      .join(" • ");
+  };
+
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: "800px", margin: "0 auto" }}>
       <h1>🍽️ GuestBites: Local Picks for {zip}</h1>
@@ -66,6 +74,7 @@ export default function ZipGuide() {
               {place.location.address}, {place.location.locality}
             </p>
           )}
+          <p style={{ fontStyle: "italic", color: "#555" }}>🏷️ {getCategoryLabel(place.categories)}</p>
           {place.website && (
             <a href={place.website} target="_blank" rel="noopener noreferrer">
               Visit Website
