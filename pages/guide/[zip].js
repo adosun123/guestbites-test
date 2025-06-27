@@ -53,13 +53,6 @@ export default function ZipGuide() {
     <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: "800px", margin: "0 auto" }}>
       <h1>🍽️ GuestBites: Local Picks for {zip}</h1>
 
-      <div style={{ background: "#f3f3f3", padding: "1rem", borderRadius: "8px", marginBottom: "2rem" }}>
-        <h3>✨ Local Perks</h3>
-        <ul>
-          <li>Trusted by Local Hosts</li>
-        </ul>
-      </div>
-
       {error && <p style={{ color: "red" }}>{error}</p>}
       {!error && places.length === 0 && <p>Loading nearby restaurants...</p>}
 
