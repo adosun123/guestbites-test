@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export default function ZipGuide() {
   const router = useRouter();
   const { zip } = router.query;
-  const [places, setPlaces] = useState([]);
+  const [groupedPlaces, setGroupedPlaces] = useState({});
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function ZipGuide() {
         const { lat, lon } = geoData[0];
 
         const fsqRes = await fetch(
-          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=12&fields=fsq_id,name,location,categories,website,distance,rating`,
+          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=20&fields=fsq_id,name,location,categories,website,distance,rating`,
           {
             headers: {
               Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
@@ -39,7 +39,30 @@ export default function ZipGuide() {
           throw new Error("Foursquare API returned no results");
         }
 
-        setPlaces(fsqData.results);
+        const places = fsqData.results;
+
+        const bucketOrder = ["Breakfast", "Lunch", "Dinner", "Dessert", "Other"];
+
+        const getBucket = (categories = []) => {
+          const names = categories.map((c) => c.name.toLowerCase()).join(" ");
+          if (/coffee|cafe|bakery|diner|brunch/.test(names)) return "Breakfast";
+          if (/deli|sandwich|burger|fast food|lunch/.test(names)) return "Lunch";
+          if (/pizza|grill|steak|seafood|dinner|bar/.test(names)) return "Dinner";
+          if (/ice cream|dessert|chocolate|sweet|cake/.test(names)) return "Dessert";
+          return "Other";
+        };
+
+        const grouped = {};
+        for (const bucket of bucketOrder) {
+          grouped[bucket] = [];
+        }
+
+        places.forEach((place) => {
+          const bucket = getBucket(place.categories);
+          grouped[bucket].push(place);
+        });
+
+        setGroupedPlaces(grouped);
       } catch (err) {
         console.error("Guide fetch error:", err);
         setError("Something went wrong loading the guide.");
@@ -57,32 +80,48 @@ export default function ZipGuide() {
       .join(" • ");
   };
 
+  const bucketEmojis = {
+    Breakfast: "🍳 Breakfast",
+    Lunch: "🥪 Lunch",
+    Dinner: "🍕 Dinner",
+    Dessert: "🍰 Dessert",
+    Other: "🍽️ Other",
+  };
+
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: "800px", margin: "0 auto" }}>
       <h1>🍽️ GuestBites: Local Picks for {zip}</h1>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {!error && places.length === 0 && <p>Loading nearby restaurants...</p>}
+      {!error && Object.keys(groupedPlaces).length === 0 && <p>Loading nearby restaurants...</p>}
 
-      {places.map((place) => (
-        <div key={place.fsq_id} style={{ marginBottom: "1.5rem" }}>
-          <h3>
-            {place.name} {place.rating ? <span style={{ fontWeight: "normal" }}>— ⭐ {place.rating.toFixed(1)}/10</span> : null}
-          </h3>
-          {place.location && (
-            <p>
-              {place.location.address}, {place.location.locality}
-            </p>
-          )}
-          <p style={{ fontStyle: "italic", color: "#555" }}>🏷️ {getCategoryLabel(place.categories)}</p>
-          {place.website && (
-            <a href={place.website} target="_blank" rel="noopener noreferrer">
-              Visit Website
-            </a>
-          )}
-          <hr />
-        </div>
+      {Object.entries(groupedPlaces).map(([bucket, places]) => (
+        places.length > 0 && (
+          <div key={bucket} style={{ marginBottom: "2rem" }}>
+            <h2>{bucketEmojis[bucket]}</h2>
+            {places.map((place) => (
+              <div key={place.fsq_id} style={{ marginBottom: "1.5rem" }}>
+                <h3>
+                  {place.name} {place.rating ? <span style={{ fontWeight: "normal" }}>— ⭐ {place.rating.toFixed(1)}/10</span> : null}
+                </h3>
+                {place.location && (
+                  <p>
+                    {place.location.address}, {place.location.locality}
+                  </p>
+                )}
+                <p style={{ fontStyle: "italic", color: "#555" }}>🏷️ {getCategoryLabel(place.categories)}</p>
+                {place.website && (
+                  <a href={place.website} target="_blank" rel="noopener noreferrer">
+                    Visit Website
+                  </a>
+                )}
+                <hr />
+              </div>
+            ))}
+          </div>
+        )
       ))}
     </div>
   );
 }
+
