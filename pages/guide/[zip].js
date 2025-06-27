@@ -48,7 +48,7 @@ export default function ZipGuide() {
           if (/pizza/.test(names)) return "Pizza";
           if (/coffee|cafe|bakery|diner|brunch/.test(names)) return "Breakfast";
           if (/deli|sandwich|burger|fast food|lunch/.test(names)) return "Lunch";
-          if (/grill|steak|seafood|dinner|bar/.test(names)) return "Dinner";
+          if (/grill|steak|seafood|dinner|bar|restaurant/.test(names)) return "Dinner";
           if (/ice cream|dessert|chocolate|sweet|cake/.test(names)) return "Dessert";
           return "Other";
         };
