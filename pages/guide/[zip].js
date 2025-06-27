@@ -1,11 +1,10 @@
-// pages/guide/[zip].js
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 export default function ZipGuide() {
   const router = useRouter();
   const { zip } = router.query;
-  const [groupedPlaces, setGroupedPlaces] = useState({});
+  const [places, setPlaces] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -13,24 +12,17 @@ export default function ZipGuide() {
       if (!zip) return;
 
       try {
-        console.log("Fetching ZIP:", zip);
-
-        // Get lat/lng from ZIP
         const geoRes = await fetch(
           `https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`
         );
         const geoData = await geoRes.json();
-        console.log("Geo data:", geoData);
-
         if (!geoData[0]) {
           setError("Could not locate ZIP code.");
           return;
         }
 
         const { lat, lon } = geoData[0];
-        console.log("Lat/Lon:", lat, lon);
 
-        // Get restaurants from Foursquare
         const fsqRes = await fetch(
           `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=20&fields=fsq_id,name,location,categories,hours,website`,
           {
@@ -42,39 +34,9 @@ export default function ZipGuide() {
         );
 
         const fsqData = await fsqRes.json();
-        console.log("Foursquare results:", fsqData);
-
-        const places = fsqData.results || [];
-        if (places.length === 0) {
-          setError("No places found nearby.");
-        }
-
-        const tagMap = {
-          "🍻 Happy Hour": (place) =>
-            place.categories?.some((cat) => /bar|pub|tavern|taproom/i.test(cat.name)) ||
-            /bar|pub|tavern|taproom/i.test(place.name),
-
-          "🌙 Late Night Bites": (place) => {
-            const displayHours = place.hours?.display || [];
-            return displayHours.some((time) =>
-              /10:00 PM|11:00 PM|12:00 AM|1:00 AM|2:00 AM/.test(time)
-            );
-          },
-
-          "🚶 Walkable Spots": () => true,
-
-          "⭐ Locals Love": (place) => !!place.website && !!place.location?.address,
-        };
-
-        const grouped = {};
-
-        Object.keys(tagMap).forEach((tag) => {
-          grouped[tag] = places.filter(tagMap[tag]);
-        });
-
-        setGroupedPlaces(grouped);
+        setPlaces(fsqData.results || []);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Fetch error:", err);
         setError("Something went wrong loading the guide.");
       }
     }
@@ -97,39 +59,24 @@ export default function ZipGuide() {
       </div>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {!error && Object.keys(groupedPlaces).length === 0 && <p>Loading nearby restaurants...</p>}
+      {!error && places.length === 0 && <p>Loading nearby restaurants...</p>}
 
-      {Object.entries(groupedPlaces).map(([tag, places]) => (
-        <div key={tag} style={{ marginBottom: "2rem" }}>
-          <h2>{tag}</h2>
-          {places.length === 0 ? (
-            <p style={{ color: "gray" }}>No results yet in this category.</p>
-          ) : (
-            places.map((place) => (
-              <div key={place.fsq_id} style={{ marginBottom: "1.5rem" }}>
-                <h3>{place.name}</h3>
-                {place.location && (
-                  <p>
-                    {place.location.address}, {place.location.locality}
-                  </p>
-                )}
-                {place.website && (
-                  <a href={place.website} target="_blank" rel="noopener noreferrer">
-                    Visit Website
-                  </a>
-                )}
-                <hr />
-              </div>
-            ))
+      {places.map((place) => (
+        <div key={place.fsq_id} style={{ marginBottom: "1.5rem" }}>
+          <h3>{place.name}</h3>
+          {place.location && (
+            <p>
+              {place.location.address}, {place.location.locality}
+            </p>
           )}
+          {place.website && (
+            <a href={place.website} target="_blank" rel="noopener noreferrer">
+              Visit Website
+            </a>
+          )}
+          <hr />
         </div>
       ))}
     </div>
   );
 }
-
-      ))}
-    </div>
-  );
-}
-
