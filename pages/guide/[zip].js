@@ -1,11 +1,11 @@
 // pages/guide/[zip].js
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function decodeCustomParam(param) {
   try {
     return JSON.parse(decodeURIComponent(param));
-  } catch (e) {
+  } catch {
     return [];
   }
 }
@@ -14,58 +14,105 @@ function encodeCustomParam(data) {
   return encodeURIComponent(JSON.stringify(data));
 }
 
+const BUCKET_ORDER = ["Breakfast", "Lunch", "Pizza", "Dinner", "Dessert", "Other"];
+const BUCKET_EMOJIS = {
+  Breakfast: "🍳 Breakfast",
+  Lunch: "🥪 Lunch",
+  Pizza: "🍕 Pizza",
+  Dinner: "🍽️ Dinner",
+  Dessert: "🍰 Dessert",
+  Other: "🗂️ Other",
+  Custom: "➕ Added by Host",
+};
+
+// Minimal local fallback so the page never “spins forever”
+const FALLBACK_BY_ZIP = (zip) => ({
+  Breakfast: [],
+  Lunch: [],
+  Pizza: [],
+  Dinner: [],
+  Dessert: [],
+  Other: [
+    {
+      fsq_id: `fallback-1-${zip}`,
+      name: "Local Favorite #1",
+      location: { address: zip, locality: "" },
+      categories: [],
+    },
+    {
+      fsq_id: `fallback-2-${zip}`,
+      name: "Local Favorite #2",
+      location: { address: zip, locality: "" },
+      categories: [],
+    },
+  ],
+});
+
 export default function ZipGuide() {
   const router = useRouter();
   const { zip, custom } = router.query;
+
   const [groupedPlaces, setGroupedPlaces] = useState({});
   const [customPlaces, setCustomPlaces] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", address: "", category: "", link: "" });
-  const [error, setError] = useState(null);
 
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Decode any custom places passed in the URL
   useEffect(() => {
-    if (custom) {
-      setCustomPlaces(decodeCustomParam(custom));
-    }
+    if (custom) setCustomPlaces(decodeCustomParam(custom));
   }, [custom]);
 
+  // Build empty buckets
+  const emptyBuckets = useMemo(
+    () => Object.fromEntries(BUCKET_ORDER.map((b) => [b, []])),
+    []
+  );
+
   useEffect(() => {
+    let cancelled = false;
     async function fetchData() {
       if (!zip) return;
+      setLoading(true);
+      setError(null);
 
       try {
-        const geoRes = await fetch(
-          `https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`
-        );
-        const geoData = await geoRes.json();
-        if (!geoData[0]) {
-          setError("Could not locate ZIP code.");
-          return;
+        // Use Foursquare's `near=ZIP, US` to avoid external geocoding
+        const url =
+          `https://api.foursquare.com/v3/places/search?` +
+          new URLSearchParams({
+            near: `${zip}, US`,
+            radius: "5000",
+            categories: "13065", // Food & Dining tree (adjust as needed)
+            limit: "20",
+            fields:
+              "fsq_id,name,location,categories,website,distance,rating",
+          });
+
+        const fsqRes = await fetch(url, {
+          headers: {
+            Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
+            Accept: "application/json",
+          },
+        });
+
+        if (!fsqRes.ok) {
+          const txt = await fsqRes.text();
+          console.error("Foursquare error:", fsqRes.status, txt);
+          throw new Error(`Foursquare error ${fsqRes.status}`);
         }
-
-        const { lat, lon } = geoData[0];
-
-        const fsqRes = await fetch(
-          `https://api.foursquare.com/v3/places/search?ll=${lat},${lon}&radius=5000&categories=13065&limit=20&fields=fsq_id,name,location,categories,website,distance,rating`,
-          {
-            headers: {
-              Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
-              Accept: "application/json",
-            },
-          }
-        );
 
         const fsqData = await fsqRes.json();
-        if (!fsqData.results) {
-          throw new Error("Foursquare API returned no results");
-        }
+        const places = fsqData?.results || [];
+        if (!places.length) throw new Error("No places returned");
 
-        const places = fsqData.results;
-
-        const bucketOrder = ["Breakfast", "Lunch", "Pizza", "Dinner", "Dessert", "Other"];
-
+        // Bucketing
         const getBucket = (categories = []) => {
-          const names = categories.map((c) => c.name.toLowerCase()).join(" ");
+          const names = categories
+            .map((c) => (c?.name || "").toLowerCase())
+            .join(" ");
           if (/pizza|pizzeria|pizza place/.test(names)) return "Pizza";
           if (/coffee|cafe|bakery|diner|brunch/.test(names)) return "Breakfast";
           if (/deli|sandwich|burger|fast food|lunch/.test(names)) return "Lunch";
@@ -74,42 +121,32 @@ export default function ZipGuide() {
           return "Other";
         };
 
-        const grouped = {};
-        for (const bucket of bucketOrder) {
-          grouped[bucket] = [];
+        const grouped = { ...emptyBuckets };
+        for (const p of places) {
+          grouped[getBucket(p.categories)].push(p);
         }
 
-        places.forEach((place) => {
-          const bucket = getBucket(place.categories);
-          grouped[bucket].push(place);
-        });
-
-        setGroupedPlaces(grouped);
-      } catch (err) {
-        console.error("Guide fetch error:", err);
-        setError("Something went wrong loading the guide.");
+        if (!cancelled) setGroupedPlaces(grouped);
+      } catch (e) {
+        console.error("Guide fetch error:", e);
+        if (!cancelled) {
+          setError("Couldn’t load places right now. Showing a few local favorites.");
+          setGroupedPlaces(FALLBACK_BY_ZIP(String(zip)));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchData();
-  }, [zip]);
+    return () => {
+      cancelled = true;
+    };
+  }, [zip, emptyBuckets]);
 
   const getCategoryLabel = (categories) => {
-    if (!categories || categories.length === 0) return "";
-    return categories
-      .slice(0, 2)
-      .map((cat) => cat.name)
-      .join(" • ");
-  };
-
-  const bucketEmojis = {
-    Breakfast: "🍳 Breakfast",
-    Lunch: "🥪 Lunch",
-    Pizza: "🍕 Pizza",
-    Dinner: "🍽️ Dinner",
-    Dessert: "🍰 Dessert",
-    Other: "🗂️ Other",
-    Custom: "➕ Added by Host",
+    if (!categories || !categories.length) return "";
+    return categories.slice(0, 2).map((c) => c?.name || "").filter(Boolean).join(" • ");
   };
 
   const handleAddPlace = () => {
@@ -118,51 +155,78 @@ export default function ZipGuide() {
     setCustomPlaces(updated);
     setForm({ name: "", address: "", category: "", link: "" });
     setShowForm(false);
-    router.replace({ pathname: router.pathname, query: { zip, custom: newParam } }, undefined, { shallow: true });
+    router.replace(
+      { pathname: router.pathname, query: { zip, custom: newParam } },
+      undefined,
+      { shallow: true }
+    );
   };
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: "800px", margin: "0 auto" }}>
+    <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: 800, margin: "0 auto" }}>
       <h1>🍽️ GuestBites: Local Picks for {zip}</h1>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {!error && Object.keys(groupedPlaces).length === 0 && <p>Loading nearby restaurants...</p>}
+      {loading && !error && <p>Loading nearby restaurants…</p>}
+      {error && (
+        <div style={{ color: "red", marginBottom: "1rem" }}>
+          {error}{" "}
+          <button
+            onClick={() => router.replace(router.asPath)}
+            style={{ marginLeft: 8, padding: "0.25rem 0.5rem", borderRadius: 6, cursor: "pointer" }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
-      {Object.entries(groupedPlaces).map(([bucket, places]) => (
-        places.length > 0 && (
-          <div key={bucket} style={{ marginBottom: "2rem" }}>
-            <h2>{bucketEmojis[bucket]}</h2>
-            {places.map((place) => (
-              <div key={place.fsq_id} style={{ marginBottom: "1.5rem" }}>
-                <h3>
-                  {place.name} {place.rating ? <span style={{ fontWeight: "normal" }}>— ⭐ {place.rating.toFixed(1)}/10</span> : null}
-                </h3>
-                {place.location && (
-                  <p>
-                    {place.location.address}, {place.location.locality}
+      {/* Render buckets */}
+      {Object.keys(groupedPlaces).length > 0 &&
+        Object.entries(groupedPlaces).map(([bucket, places]) =>
+          places.length ? (
+            <div key={bucket} style={{ marginBottom: "2rem" }}>
+              <h2>{BUCKET_EMOJIS[bucket]}</h2>
+              {places.map((place) => (
+                <div key={place.fsq_id} style={{ marginBottom: "1.25rem" }}>
+                  <h3 style={{ margin: 0 }}>
+                    {place.name}{" "}
+                    {typeof place.rating === "number" && (
+                      <span style={{ fontWeight: "normal" }}>— ⭐ {place.rating.toFixed(1)}/10</span>
+                    )}
+                  </h3>
+                  {place.location && (place.location.address || place.location.locality) && (
+                    <p style={{ margin: "0.25rem 0" }}>
+                      {place.location.address || ""} {place.location.locality ? `, ${place.location.locality}` : ""}
+                    </p>
+                  )}
+                  <p style={{ fontStyle: "italic", color: "#555", margin: "0.25rem 0" }}>
+                    🏷️ {getCategoryLabel(place.categories)}
                   </p>
-                )}
-                <p style={{ fontStyle: "italic", color: "#555" }}>🏷️ {getCategoryLabel(place.categories)}</p>
-                {place.website && (
-                  <a href={place.website} target="_blank" rel="noopener noreferrer">
-                    Visit Website
-                  </a>
-                )}
-                <hr />
-              </div>
-            ))}
-          </div>
-        )
-      ))}
+                  {place.website && (
+                    <a href={place.website} target="_blank" rel="noopener noreferrer">
+                      Visit Website
+                    </a>
+                  )}
+                  <hr />
+                </div>
+              ))}
+            </div>
+          ) : null
+        )}
 
+      {/* Custom (host-added) places */}
       {customPlaces.length > 0 && (
         <div style={{ marginBottom: "2rem" }}>
-          <h2>{bucketEmojis.Custom}</h2>
+          <h2>{BUCKET_EMOJIS.Custom}</h2>
           {customPlaces.map((place, i) => (
-            <div key={i} style={{ marginBottom: "1.5rem" }}>
-              <h3>{place.name}</h3>
-              <p>{place.address}</p>
-              <p style={{ fontStyle: "italic", color: "#555" }}>🏷️ {place.category}</p>
+            <div key={i} style={{ marginBottom: "1.25rem" }}>
+              <h3 style={{ margin: 0 }}>{place.name}</h3>
+              {(place.address || place.category) && (
+                <p style={{ margin: "0.25rem 0", color: "#555" }}>
+                  {place.address}
+                  {place.address && place.category ? " • " : ""}
+                  {place.category}
+                </p>
+              )}
               {place.link && (
                 <a href={place.link} target="_blank" rel="noopener noreferrer">
                   Visit Website
@@ -174,6 +238,7 @@ export default function ZipGuide() {
         </div>
       )}
 
+      {/* Add custom place form */}
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
@@ -184,7 +249,7 @@ export default function ZipGuide() {
       )}
 
       {showForm && (
-        <div style={{ marginTop: "1.5rem" }}>
+        <div style={{ marginTop: "1.25rem" }}>
           <h3>Add Your Own Favorite</h3>
           <input
             type="text"
@@ -219,6 +284,12 @@ export default function ZipGuide() {
             style={{ padding: "0.5rem 1rem", borderRadius: "6px", cursor: "pointer" }}
           >
             ✅ Add to My Guide
+          </button>{" "}
+          <button
+            onClick={() => setShowForm(false)}
+            style={{ padding: "0.5rem 1rem", borderRadius: "6px", cursor: "pointer", marginLeft: 8 }}
+          >
+            Cancel
           </button>
         </div>
       )}
