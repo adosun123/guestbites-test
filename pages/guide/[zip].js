@@ -36,13 +36,13 @@ const FALLBACK_BY_ZIP = (zip) => ({
     {
       fsq_id: `fallback-1-${zip}`,
       name: "Local Favorite #1",
-      location: { address: zip, locality: "" },
+      location: { address: String(zip), locality: "" },
       categories: [],
     },
     {
       fsq_id: `fallback-2-${zip}`,
       name: "Local Favorite #2",
-      location: { address: zip, locality: "" },
+      location: { address: String(zip), locality: "" },
       categories: [],
     },
   ],
@@ -73,35 +73,20 @@ export default function ZipGuide() {
 
   useEffect(() => {
     let cancelled = false;
+
     async function fetchData() {
       if (!zip) return;
       setLoading(true);
       setError(null);
 
       try {
-        // Use Foursquare's `near=ZIP, US` to avoid external geocoding
-        const url =
-          `https://api.foursquare.com/v3/places/search?` +
-          new URLSearchParams({
-            near: `${zip}, US`,
-            radius: "5000",
-            categories: "13065", // Food & Dining tree (adjust as needed)
-            limit: "20",
-            fields:
-              "fsq_id,name,location,categories,website,distance,rating",
-          });
-
-        const fsqRes = await fetch(url, {
-          headers: {
-            Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
-            Accept: "application/json",
-          },
-        });
+        // Call your server-side proxy to Foursquare
+        const fsqRes = await fetch(`/api/places?zip=${encodeURIComponent(zip)}`, { cache: "no-store" });
 
         if (!fsqRes.ok) {
           const txt = await fsqRes.text();
-          console.error("Foursquare error:", fsqRes.status, txt);
-          throw new Error(`Foursquare error ${fsqRes.status}`);
+          console.error("Proxy error:", fsqRes.status, txt);
+          throw new Error(`Proxy error ${fsqRes.status}`);
         }
 
         const fsqData = await fsqRes.json();
@@ -110,9 +95,7 @@ export default function ZipGuide() {
 
         // Bucketing
         const getBucket = (categories = []) => {
-          const names = categories
-            .map((c) => (c?.name || "").toLowerCase())
-            .join(" ");
+          const names = categories.map((c) => (c?.name || "").toLowerCase()).join(" ");
           if (/pizza|pizzeria|pizza place/.test(names)) return "Pizza";
           if (/coffee|cafe|bakery|diner|brunch/.test(names)) return "Breakfast";
           if (/deli|sandwich|burger|fast food|lunch/.test(names)) return "Lunch";
@@ -146,7 +129,11 @@ export default function ZipGuide() {
 
   const getCategoryLabel = (categories) => {
     if (!categories || !categories.length) return "";
-    return categories.slice(0, 2).map((c) => c?.name || "").filter(Boolean).join(" • ");
+    return categories
+      .slice(0, 2)
+      .map((c) => c?.name || "")
+      .filter(Boolean)
+      .join(" • ");
   };
 
   const handleAddPlace = () => {
