@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
+/* ---------- URL param helpers ---------- */
 function decodeCustomParam(param) {
   try {
     return JSON.parse(decodeURIComponent(param));
@@ -8,11 +9,11 @@ function decodeCustomParam(param) {
     return [];
   }
 }
-
 function encodeCustomParam(data) {
   return encodeURIComponent(JSON.stringify(data));
 }
 
+/* ---------- Constants ---------- */
 const BUCKET_ORDER = ["Breakfast", "Lunch", "Pizza", "Dinner", "Dessert", "Other"];
 const BUCKET_EMOJIS = {
   Breakfast: "🍳 Breakfast",
@@ -24,7 +25,7 @@ const BUCKET_EMOJIS = {
   Custom: "➕ Added by Host",
 };
 
-// Minimal local fallback so the page never “spins forever”
+/* ---------- Fallback (never empty screen) ---------- */
 const FALLBACK_BY_ZIP = (zip) => ({
   Breakfast: [],
   Lunch: [],
@@ -47,7 +48,16 @@ const FALLBACK_BY_ZIP = (zip) => ({
   ],
 });
 
-// Improved bucketing: use categories + name
+/* ---------- Helpers ---------- */
+const formatAddress = (loc = {}) => {
+  const parts = [loc.address, loc.locality].filter(Boolean);
+  return parts.join(", ");
+};
+
+const toMapsLink = (name = "", addr = "") =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${addr}`)}`;
+
+// Improved bucketing: use categories + name keywords
 const getBucket = (categories = [], name = "") => {
   const names = categories.map((c) => (c?.name || "").toLowerCase()).join(" ");
   const n = (name || "").toLowerCase();
@@ -57,10 +67,20 @@ const getBucket = (categories = [], name = "") => {
   if (/(coffee|cafe|caf\u00e9|bakery|brunch|tea)/.test(hay)) return "Breakfast";
   if (/(deli|sandwich|burger|fast food|lunch|subs)/.test(hay)) return "Lunch";
   if (/(ice cream|dessert|chocolate|sweet|cake|gelato)/.test(hay)) return "Dessert";
-  // Default most restaurants to Dinner for now
+  // Default most restaurants to Dinner
   return "Dinner";
 };
 
+const getCategoryLabel = (categories) => {
+  if (!categories || !categories.length) return "";
+  return categories
+    .slice(0, 2)
+    .map((c) => c?.name || "")
+    .filter(Boolean)
+    .join(" • ");
+};
+
+/* ---------- Page ---------- */
 export default function ZipGuide() {
   const router = useRouter();
   const { zip, custom } = router.query;
@@ -69,7 +89,6 @@ export default function ZipGuide() {
   const [customPlaces, setCustomPlaces] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", address: "", category: "", link: "" });
-
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -84,6 +103,7 @@ export default function ZipGuide() {
     []
   );
 
+  // Fetch places via server proxy (FSQ standard + OSM fallback)
   useEffect(() => {
     let cancelled = false;
 
@@ -93,9 +113,7 @@ export default function ZipGuide() {
       setError(null);
 
       try {
-        // Call your server-side proxy to Foursquare (with OSM fallback)
         const fsqRes = await fetch(`/api/places?zip=${encodeURIComponent(zip)}`, { cache: "no-store" });
-
         if (!fsqRes.ok) {
           const txt = await fsqRes.text();
           console.error("Proxy error:", fsqRes.status, txt);
@@ -129,15 +147,6 @@ export default function ZipGuide() {
     };
   }, [zip, emptyBuckets]);
 
-  const getCategoryLabel = (categories) => {
-    if (!categories || !categories.length) return "";
-    return categories
-      .slice(0, 2)
-      .map((c) => c?.name || "")
-      .filter(Boolean)
-      .join(" • ");
-  };
-
   const handleAddPlace = () => {
     const updated = [...customPlaces, { ...form }];
     const newParam = encodeCustomParam(updated);
@@ -154,6 +163,33 @@ export default function ZipGuide() {
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: 800, margin: "0 auto" }}>
       <h1>🍽️ GuestBites: Local Picks for {zip}</h1>
+
+      {/* mini ZIP switcher just under the title */}
+      <div style={{ margin: "0.5rem 0 1rem 0" }}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formZip = e.currentTarget.elements.zip?.value?.replace(/\D/g, "").slice(0, 5);
+            if (formZip?.length === 5) router.push(`/guide/${formZip}`);
+          }}
+        >
+          <label style={{ marginRight: 8 }}>Change ZIP:</label>
+          <input
+            name="zip"
+            defaultValue={String(zip || "")}
+            inputMode="numeric"
+            pattern="\d*"
+            style={{
+              padding: "0.35rem 0.6rem",
+              borderRadius: 6,
+              border: "1px solid #ddd",
+              width: 120,
+              marginRight: 8,
+            }}
+          />
+          <button style={{ padding: "0.35rem 0.8rem", borderRadius: 6, cursor: "pointer" }}>Go</button>
+        </form>
+      </div>
 
       {loading && !error && <p>Loading nearby restaurants…</p>}
       {error && (
@@ -174,26 +210,38 @@ export default function ZipGuide() {
           places.length ? (
             <div key={bucket} style={{ marginBottom: "2rem" }}>
               <h2>{BUCKET_EMOJIS[bucket]}</h2>
-              {places.map((place) => (
-                <div key={place.fsq_id} style={{ marginBottom: "1.25rem" }}>
-                  <h3 style={{ margin: 0 }}>{place.name}</h3>
-                  {place.location && (place.location.address || place.location.locality) && (
-                    <p style={{ margin: "0.25rem 0" }}>
-                      {place.location.address || ""}{" "}
-                      {place.location.locality ? `, ${place.location.locality}` : ""}
+              {[...places]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((place) => (
+                  <div key={place.fsq_id} style={{ marginBottom: "1.25rem" }}>
+                    <h3 style={{ margin: 0 }}>{place.name}</h3>
+
+                    {place.location && (place.location.address || place.location.locality) && (
+                      <>
+                        <p style={{ margin: "0.25rem 0" }}>{formatAddress(place.location)}</p>
+                        <a
+                          href={toMapsLink(place.name, formatAddress(place.location))}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: "inline-block", marginBottom: 4 }}
+                        >
+                          Get directions
+                        </a>
+                      </>
+                    )}
+
+                    <p style={{ fontStyle: "italic", color: "#555", margin: "0.25rem 0" }}>
+                      🏷️ {getCategoryLabel(place.categories)}
                     </p>
-                  )}
-                  <p style={{ fontStyle: "italic", color: "#555", margin: "0.25rem 0" }}>
-                    🏷️ {getCategoryLabel(place.categories)}
-                  </p>
-                  {place.website && (
-                    <a href={place.website} target="_blank" rel="noopener noreferrer">
-                      Visit Website
-                    </a>
-                  )}
-                  <hr />
-                </div>
-              ))}
+
+                    {place.website && (
+                      <a href={place.website} target="_blank" rel="noopener noreferrer">
+                        Visit Website
+                      </a>
+                    )}
+                    <hr />
+                  </div>
+                ))}
             </div>
           ) : null
         )}
