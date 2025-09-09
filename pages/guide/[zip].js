@@ -1,4 +1,3 @@
-// pages/guide/[zip].js
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
@@ -48,6 +47,20 @@ const FALLBACK_BY_ZIP = (zip) => ({
   ],
 });
 
+// Improved bucketing: use categories + name
+const getBucket = (categories = [], name = "") => {
+  const names = categories.map((c) => (c?.name || "").toLowerCase()).join(" ");
+  const n = (name || "").toLowerCase();
+  const hay = `${names} ${n}`;
+
+  if (/(pizza|pizzeria)/.test(hay)) return "Pizza";
+  if (/(coffee|cafe|caf\u00e9|bakery|brunch|tea)/.test(hay)) return "Breakfast";
+  if (/(deli|sandwich|burger|fast food|lunch|subs)/.test(hay)) return "Lunch";
+  if (/(ice cream|dessert|chocolate|sweet|cake|gelato)/.test(hay)) return "Dessert";
+  // Default most restaurants to Dinner for now
+  return "Dinner";
+};
+
 export default function ZipGuide() {
   const router = useRouter();
   const { zip, custom } = router.query;
@@ -80,7 +93,7 @@ export default function ZipGuide() {
       setError(null);
 
       try {
-        // Call your server-side proxy to Foursquare
+        // Call your server-side proxy to Foursquare (with OSM fallback)
         const fsqRes = await fetch(`/api/places?zip=${encodeURIComponent(zip)}`, { cache: "no-store" });
 
         if (!fsqRes.ok) {
@@ -93,20 +106,9 @@ export default function ZipGuide() {
         const places = fsqData?.results || [];
         if (!places.length) throw new Error("No places returned");
 
-        // Bucketing
-        const getBucket = (categories = []) => {
-          const names = categories.map((c) => (c?.name || "").toLowerCase()).join(" ");
-          if (/pizza|pizzeria|pizza place/.test(names)) return "Pizza";
-          if (/coffee|cafe|bakery|diner|brunch/.test(names)) return "Breakfast";
-          if (/deli|sandwich|burger|fast food|lunch/.test(names)) return "Lunch";
-          if (/grill|steak|seafood|dinner|bar|restaurant/.test(names)) return "Dinner";
-          if (/ice cream|dessert|chocolate|sweet|cake/.test(names)) return "Dessert";
-          return "Other";
-        };
-
         const grouped = { ...emptyBuckets };
         for (const p of places) {
-          grouped[getBucket(p.categories)].push(p);
+          grouped[getBucket(p.categories, p.name)].push(p);
         }
 
         if (!cancelled) setGroupedPlaces(grouped);
@@ -174,15 +176,11 @@ export default function ZipGuide() {
               <h2>{BUCKET_EMOJIS[bucket]}</h2>
               {places.map((place) => (
                 <div key={place.fsq_id} style={{ marginBottom: "1.25rem" }}>
-                  <h3 style={{ margin: 0 }}>
-                    {place.name}{" "}
-                    {typeof place.rating === "number" && (
-                      <span style={{ fontWeight: "normal" }}>— ⭐ {place.rating.toFixed(1)}/10</span>
-                    )}
-                  </h3>
+                  <h3 style={{ margin: 0 }}>{place.name}</h3>
                   {place.location && (place.location.address || place.location.locality) && (
                     <p style={{ margin: "0.25rem 0" }}>
-                      {place.location.address || ""} {place.location.locality ? `, ${place.location.locality}` : ""}
+                      {place.location.address || ""}{" "}
+                      {place.location.locality ? `, ${place.location.locality}` : ""}
                     </p>
                   )}
                   <p style={{ fontStyle: "italic", color: "#555", margin: "0.25rem 0" }}>
@@ -280,6 +278,10 @@ export default function ZipGuide() {
           </button>
         </div>
       )}
+
+      <p style={{ marginTop: 24, fontSize: 12, color: "#888" }}>
+        Data sources: © OpenStreetMap contributors • Foursquare Places
+      </p>
     </div>
   );
 }
