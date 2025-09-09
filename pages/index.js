@@ -1,7 +1,8 @@
-// pages/index.js
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
+
+const DEMO_ZIP = "90210";
 
 export default function Home() {
   const router = useRouter();
@@ -80,7 +81,7 @@ export default function Home() {
               id="zip"
               inputMode="numeric"
               pattern="\d*"
-              placeholder="Enter ZIP (e.g., 43209)"
+              placeholder={`Enter ZIP (e.g., ${DEMO_ZIP})`}
               value={zipInput}
               onChange={(e) => setZipInput(normZip(e.target.value))}
             />
@@ -95,7 +96,7 @@ export default function Home() {
 
           {/* Small, de-emphasized demo link */}
           <p className="muted">
-            Or try the demo: <a href="/guide/43209">ZIP 43209</a>
+            Or try the demo: <a href={`/guide/${DEMO_ZIP}`}>ZIP {DEMO_ZIP}</a>
           </p>
 
           {err && <p className="error">{err}</p>}
@@ -217,7 +218,4 @@ export default function Home() {
     </>
   );
 }
-
-
-
 
