@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GuestBites – Host Guide Creator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      background: radial-gradient(circle at top, #1e293b 0, #020617 60%);
+      color: #e5e7eb;
+    }
+    .page {
+      width: 100%;
+      max-width: 960px;
+    }
+    h1 { margin: 0 0 4px; font-size: 24px; }
+    p { margin: 0; }
+    .sub { color: #9ca3af; font-size: 13px; margin-bottom: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.6fr);
+      gap: 24px;
+    }
+    .card {
+      background: rgba(15,23,42,0.9);
+      border-radius: 20px;
+      border: 1px solid rgba(148,163,184,0.6);
+      padding: 16px;
+    }
+    label {
+      font-size: 13px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    input {
+      width: 100%;
+      padding: 6px 10px;
+      margin-bottom: 8px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      font-size: 13px;
+    }
+    button {
+      width: 100%;
+      padding: 10px 0;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(120deg,#2563eb,#22c55e);
+      color: white;
+      margin-top: 10px;
+    }
+    .hint { font-size: 12px; color: #9ca3af; margin-top: 6px; }
+    .url-box {
+      margin-bottom: 12px;
+      padding: 10px;
+      background: #020617;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,0.7);
+      font-size: 12px;
+      word-break: break-all;
+    }
+    .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(245,158,11,0.1);
+      color: #fbbf24;
+      font-size: 11px;
+      margin-right: 6px;
+    }
+    .guest-card {
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: #020617;
+      margin-bottom: 8px;
+    }
+    .guest-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .guest-note {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .guest-meta {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .section-sub {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+    .qr-wrapper {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .qr-box {
+      padding: 8px;
+      border-radius: 16px;
+      background: #020617;
+      border: 1px dashed rgba(148,163,184,0.8);
+    }
+    .footer {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+    }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: minmax(0,1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>GuestBites · Host Guide Creator</h1>
+      <p class="sub">
+        Fill this once and get a guest link + QR code for your food guide. You can share the link
+        with guests or print the QR for your welcome frame / fridge.
+      </p>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: FORM -->
+      <div class="card">
+        <label>Property name</label>
+        <input id="propName" placeholder="Historic 3BR Gem · German Village" />
+
+        <label>ZIP code</label>
+        <input id="zip" placeholder="43206" />
+
+        <hr style="border: none; border-top: 1px dashed rgba(148,163,184,0.7); margin: 10px 0;" />
+
+        <p class="sub" style="margin-bottom: 8px;">
+          Add 1–2 places you recommend (<strong>Host Picks</strong>)
+        </p>
+
+        <label>Host Pick #1 – name</label>
+        <input id="h1Name" placeholder="Schmidt's Sausage Haus" />
+
+        <label>Host Pick #1 – short note</label>
+        <input id="h1Note" placeholder="Classic German, great with kids" />
+
+        <label>Host Pick #2 – name (optional)</label>
+        <input id="h2Name" placeholder="Pistacia Vera" />
+
+        <label>Host Pick #2 – short note</label>
+        <input id="h2Note" placeholder="Coffee + pastries, perfect morning walk" />
+
+        <button id="generateBtn">Generate guide link & QR</button>
+        <p class="hint">
+          Guests will land on a simple guest view that shows these Host Picks and nearby ideas. QR works once this is deployed.
+        </p>
+      </div>
+
+      <!-- RIGHT: LINK + QR + GUEST PREVIEW -->
+      <div class="card">
+        <h2 style="margin: 0 0 8px; font-size: 16px;">Guest link & QR preview</h2>
+        <p id="instructions" style="font-size: 13px; color: #9ca3af; margin-bottom: 10px;">
+          Fill the form on the left and click <strong>Generate guide link & QR</strong> to see the result here.
+        </p>
+
+        <div id="urlBox" class="url-box" style="display:none;">
+          <div style="color:#9ca3af; margin-bottom:4px;">Guest guide URL</div>
+          <a id="guestUrl" href="#" target="_blank" style="color:#93c5fd; text-decoration:none;"></a>
+        </div>
+
+        <div id="qrSection" class="qr-wrapper" style="display:none; margin-bottom:12px;">
+          <div class="qr-box">
+            <img id="qrImage" alt="QR code" style="width: 120px; height: 120px;" />
+          </div>
+          <div style="font-size: 12px; color:#9ca3af;">
+            <div style="margin-bottom:4px; color:#e5e7eb;">QR for this guide</div>
+            <div>
+              • Screenshot or print this QR<br/>
+              • Or copy and paste the guest link into your welcome message / guidebook
+            </div>
+          </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px dashed rgba(148,163,184,0.7); margin: 10px 0;" />
+
+        <div>
+          <div class="section-title">Guest preview (local mock)</div>
+          <div class="section-sub">
+            This is a preview of what guests will see on the guest page using your Host Picks.
+          </div>
+
+          <div id="guestPreview">
+            <div style="font-size:13px; color:#9ca3af;">
+              Your Host Picks and basic info will appear here after you generate the guide.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      GuestBites – prototype host tool. Guests will see the full guide at <code>guest-guide.html</code>.
+    </div>
+  </div>
+
+  <script>
+    const propNameInput = document.getElementById("propName");
+    const zipInput = document.getElementById("zip");
+    const h1NameInput = document.getElementById("h1Name");
+    const h1NoteInput = document.getElementById("h1Note");
+    const h2NameInput = document.getElementById("h2Name");
+    const h2NoteInput = document.getElementById("h2Note");
+
+    const generateBtn = document.getElementById("generateBtn");
+    const instructions = document.getElementById("instructions");
+    const urlBox = document.getElementById("urlBox");
+    const guestUrlAnchor = document.getElementById("guestUrl");
+    const qrSection = document.getElementById("qrSection");
+    const qrImage = document.getElementById("qrImage");
+    const guestPreview = document.getElementById("guestPreview");
+
+    function buildGuestUrl() {
+      const zip = zipInput.value.trim();
+      const propertyName = propNameInput.value.trim();
+      const h1Name = h1NameInput.value.trim();
+      const h1Note = h1NoteInput.value.trim();
+      const h2Name = h2NameInput.value.trim();
+      const h2Note = h2NoteInput.value.trim();
+
+      if (!zip) return "";
+
+      const params = new URLSearchParams();
+      params.set("zip", zip);
+      if (propertyName) params.set("propertyName", propertyName);
+      if (h1Name) {
+        params.set("h1Name", h1Name);
+        if (h1Note) params.set("h1Note", h1Note);
+      }
+      if (h2Name) {
+        params.set("h2Name", h2Name);
+        if (h2Note) params.set("h2Note", h2Note);
+      }
+
+      // Use the live guest guide page on Vercel
+      const base = "https://try.guestbites.com/guest-guide.html";
+      const query = params.toString();
+      return query ? base + "?" + query : base;
+    }
+
+    function renderGuestPreview() {
+      const zip = zipInput.value.trim();
+      const propertyName = propNameInput.value.trim() || "Your GuestBites Food Guide";
+      const h1Name = h1NameInput.value.trim();
+      const h1Note = h1NoteInput.value.trim();
+      const h2Name = h2NameInput.value.trim();
+      const h2Note = h2NoteInput.value.trim();
+
+      let html = "";
+
+      html += `
+        <header style="margin-bottom:12px;">
+          <div style="font-size:12px; color:#9ca3af; margin-bottom:4px;">
+            GuestBites · Eats & drinks near your stay
+          </div>
+          <div style="font-size:18px; font-weight:600; margin-bottom:2px;">
+            ${propertyName}
+          </div>
+          <div style="font-size:13px; color:#9ca3af;">
+            ${zip ? "ZIP " + zip + " · curated by your host" : "Curated by your host"}
+          </div>
+        </header>
+      `;
+
+      const hostPicks = [];
+      if (h1Name) hostPicks.push({ name: h1Name, note: h1Note });
+      if (h2Name) hostPicks.push({ name: h2Name, note: h2Note });
+
+      if (hostPicks.length > 0) {
+        html += `
+          <section style="margin-bottom:12px; padding:10px; border-radius:16px; background:#020617; border:1px solid rgba(245,158,11,0.5);">
+            <div style="margin-bottom:6px; display:flex; align-items:center; gap:6px; font-size:13px;">
+              <span class="badge">⭐ Host Picks</span>
+              <span>Places your host personally recommends</span>
+            </div>
+        `;
+
+        hostPicks.forEach((p) => {
+          html += `
+            <div class="guest-card">
+              <div class="guest-name">${p.name}</div>
+              ${p.note ? `<div class="guest-note">${p.note}</div>` : ""}
+              <div class="guest-meta">Added by your host</div>
+            </div>
+          `;
+        });
+
+        html += `</section>`;
+      } else {
+        html += `
+          <section style="margin-bottom:12px; padding:10px; border-radius:16px; background:#020617; border:1px solid rgba(148,163,184,0.5); font-size:13px; color:#9ca3af;">
+            No Host Picks added yet. Once you add your favorite spots on the left, they&apos;ll appear here.
+          </section>
+        `;
+      }
+
+      html += `
+        <section style="padding:10px; border-radius:16px; background:#020617; border:1px solid rgba(148,163,184,0.6); font-size:12px; color:#9ca3af;">
+          <div style="font-size:14px; font-weight:600; margin-bottom:4px; color:#e5e7eb;">
+            Nearby ideas
+          </div>
+          <div>
+            On the live guest page, this section also shows popular nearby places from the web,
+            but your Host Picks above are the ones you truly vouch for.
+          </div>
+        </section>
+      `;
+
+      guestPreview.innerHTML = html;
+    }
+
+    generateBtn.addEventListener("click", function () {
+      const zip = zipInput.value.trim();
+      if (!zip) {
+        alert("Please enter a ZIP code");
+        return;
+      }
+
+      const url = buildGuestUrl();
+
+      // Show link
+      instructions.textContent = "Share this link or QR with guests. Below is what they will see on the guest page.";
+      urlBox.style.display = "block";
+      guestUrlAnchor.textContent = url;
+      guestUrlAnchor.href = url;
+
+      // Generate QR via public API
+      const fullUrl = url;
+      const qrApi = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(fullUrl);
+      qrImage.src = qrApi;
+      qrSection.style.display = "flex";
+
+      // Update local guest preview
+      renderGuestPreview();
+    });
+  </script>
+</body>
+</html>
