@@ -386,7 +386,7 @@
         });
       }
 
-      // Local recommendations via Foursquare
+      // Local recommendations via your Vercel API
       const localListEl = document.getElementById("local-list");
       const localEmptyEl = document.getElementById("local-empty");
 
@@ -396,37 +396,22 @@
           return;
         }
 
-        // IMPORTANT:
-        // Replace this with your real Foursquare API key.
-        const FSQ_API_KEY = "YOUR_FOURSQUARE_API_KEY_HERE";
-
-        if (!FSQ_API_KEY || FSQ_API_KEY.startsWith("YOUR_")) {
-          // No real key set – avoid making a broken call.
-          localEmptyEl.style.display = "block";
-          localEmptyEl.textContent =
-            "Nearby places will appear here once your Foursquare API key is connected.";
-          return;
-        }
-
         try {
-          const url =
-            "https://api.foursquare.com/v3/places/search?near=" +
-            encodeURIComponent(zip) +
-            "&categories=13065&sort=RATING&limit=8";
-
-          const res = await fetch(url, {
-            headers: {
-              Accept: "application/json",
-              Authorization: FSQ_API_KEY
-            }
-          });
+          // Call your own backend on Vercel, which uses the FSQ key from env
+          const url = `/api/places?zip=${encodeURIComponent(zip)}`;
+          const res = await fetch(url);
 
           if (!res.ok) {
-            throw new Error("Foursquare error: " + res.status);
+            throw new Error("Places API error: " + res.status);
           }
 
           const data = await res.json();
-          const places = data.results || [];
+          // Support either { results: [...] } or a plain array
+          const places = Array.isArray(data.results)
+            ? data.results
+            : Array.isArray(data)
+            ? data
+            : [];
 
           if (!places.length) {
             localEmptyEl.style.display = "block";
