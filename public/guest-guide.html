@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GuestBites – Your Local Guide</title>
+  <title>GuestBites – Guest Food Guide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -140,6 +140,11 @@
       align-items: flex-start;
     }
 
+    .card-main {
+      flex: 1;
+      min-width: 0;
+    }
+
     .card-badge {
       border-radius: 999px;
       padding: 0.25rem 0.6rem;
@@ -159,11 +164,6 @@
       background: var(--accent);
     }
 
-    .card-main {
-      flex: 1;
-      min-width: 0;
-    }
-
     .card-title {
       font-size: 0.95rem;
       font-weight: 600;
@@ -173,7 +173,7 @@
     .card-note {
       font-size: 0.82rem;
       color: var(--text-muted);
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.3rem;
     }
 
     .card-meta {
@@ -183,6 +183,7 @@
       flex-wrap: wrap;
       gap: 0.5rem;
       align-items: center;
+      margin-bottom: 0.35rem;
     }
 
     .pill {
@@ -199,6 +200,20 @@
     .pill-icon {
       font-size: 0.9rem;
       margin-right: 0.25rem;
+    }
+
+    .card-link {
+      font-size: 0.8rem;
+      margin-top: 0.1rem;
+    }
+
+    .card-link a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+
+    .card-link a:hover {
+      text-decoration: underline;
     }
 
     .local-empty,
@@ -346,6 +361,11 @@
       const hostSection = document.getElementById("host-picks-section");
       const hostListEl = document.getElementById("host-picks-list");
 
+      function buildMapsUrl(name) {
+        const query = zip ? `${name} ${zip}` : name;
+        return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
+      }
+
       if (!hostPicks.length) {
         hostSection.style.display = "none";
       } else {
@@ -374,12 +394,22 @@
           pill.className = "pill";
           pill.innerHTML =
             '<span class="pill-icon">⭐</span><strong>GuestBites Tip</strong> · Start here if you\'re not sure where to go.';
-
           meta.appendChild(pill);
+
+          const linkRow = document.createElement("div");
+          linkRow.className = "card-link";
+          const a = document.createElement("a");
+          a.href = buildMapsUrl(pick.name);
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.textContent = "Open in Maps";
+          linkRow.appendChild(a);
+
           main.appendChild(badge);
           main.appendChild(title);
           main.appendChild(note);
           main.appendChild(meta);
+          main.appendChild(linkRow);
 
           card.appendChild(main);
           hostListEl.appendChild(card);
@@ -397,7 +427,6 @@
         }
 
         try {
-          // Call your own backend on Vercel, which uses the FSQ key from env
           const url = `/api/places?zip=${encodeURIComponent(zip)}`;
           const res = await fetch(url);
 
@@ -406,7 +435,6 @@
           }
 
           const data = await res.json();
-          // Support either { results: [...] } or a plain array
           const places = Array.isArray(data.results)
             ? data.results
             : Array.isArray(data)
@@ -473,10 +501,32 @@
               meta.appendChild(distancePill);
             }
 
+            const linkRow = document.createElement("div");
+            linkRow.className = "card-link";
+            const mapsQueryParts = [];
+            if (place.name) mapsQueryParts.push(place.name);
+            if (place.location && place.location.formatted_address) {
+              mapsQueryParts.push(place.location.formatted_address);
+            } else if (zip) {
+              mapsQueryParts.push(zip);
+            }
+            const mapsQuery = mapsQueryParts.join(" ");
+            const mapsUrl =
+              "https://www.google.com/maps/search/?api=1&query=" +
+              encodeURIComponent(mapsQuery || place.name || "");
+
+            const a = document.createElement("a");
+            a.href = mapsUrl;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.textContent = "Open in Maps";
+            linkRow.appendChild(a);
+
             main.appendChild(badge);
             main.appendChild(title);
             main.appendChild(note);
             main.appendChild(meta);
+            main.appendChild(linkRow);
 
             card.appendChild(main);
             localListEl.appendChild(card);
