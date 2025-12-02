@@ -151,7 +151,7 @@
         <hr style="border: none; border-top: 1px dashed rgba(148,163,184,0.7); margin: 10px 0;" />
 
         <p class="sub" style="margin-bottom: 8px;">
-          Add 1–2 places you recommend (<strong>Host Picks</strong>)
+          Add up to 3 places you recommend (<strong>Host Picks</strong>)
         </p>
 
         <label>Host Pick #1 – name</label>
@@ -165,6 +165,12 @@
 
         <label>Host Pick #2 – short note</label>
         <input id="h2Note" placeholder="Coffee + pastries, perfect morning walk" />
+
+        <label>Host Pick #3 – name (optional)</label>
+        <input id="h3Name" placeholder="Fox in the Snow" />
+
+        <label>Host Pick #3 – short note</label>
+        <input id="h3Note" placeholder="Great coffee & pastries" />
 
         <button id="generateBtn">Generate guide link & QR</button>
         <p class="hint">
@@ -226,6 +232,8 @@
     const h1NoteInput = document.getElementById("h1Note");
     const h2NameInput = document.getElementById("h2Name");
     const h2NoteInput = document.getElementById("h2Note");
+    const h3NameInput = document.getElementById("h3Name");
+    const h3NoteInput = document.getElementById("h3Note");
 
     const generateBtn = document.getElementById("generateBtn");
     const instructions = document.getElementById("instructions");
@@ -242,6 +250,8 @@
       const h1Note = h1NoteInput.value.trim();
       const h2Name = h2NameInput.value.trim();
       const h2Note = h2NoteInput.value.trim();
+      const h3Name = h3NameInput.value.trim();
+      const h3Note = h3NoteInput.value.trim();
 
       if (!zip) return "";
 
@@ -255,6 +265,10 @@
       if (h2Name) {
         params.set("h2Name", h2Name);
         if (h2Note) params.set("h2Note", h2Note);
+      }
+      if (h3Name) {
+        params.set("h3Name", h3Name);
+        if (h3Note) params.set("h3Note", h3Note);
       }
 
       // Use the live guest guide page on Vercel
@@ -270,6 +284,8 @@
       const h1Note = h1NoteInput.value.trim();
       const h2Name = h2NameInput.value.trim();
       const h2Note = h2NoteInput.value.trim();
+      const h3Name = h3NameInput.value.trim();
+      const h3Note = h3NoteInput.value.trim();
 
       let html = "";
 
@@ -290,6 +306,7 @@
       const hostPicks = [];
       if (h1Name) hostPicks.push({ name: h1Name, note: h1Note });
       if (h2Name) hostPicks.push({ name: h2Name, note: h2Note });
+      if (h3Name) hostPicks.push({ name: h3Name, note: h3Note });
 
       if (hostPicks.length > 0) {
         html += `
