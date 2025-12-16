@@ -14,9 +14,6 @@
 
   <title>GuestBites – Guest Food Guide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <title>GuestBites – Guest Food Guide</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
       --bg: #0f172a;
@@ -84,11 +81,17 @@
       color: var(--accent);
     }
 
-    .hero-text p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
+  .hero-text p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.hero-text .hero-purpose {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
 
     .hero-tags {
       margin-top: 0.85rem;
@@ -272,10 +275,14 @@
         <h1 id="hero-title">
           Welcome to <span id="property-name">Your Stay</span>
         </h1>
-        <p id="hero-subtitle">
-          Handpicked favorites from your host, plus top-rated spots nearby in
-          <span id="hero-zip">your area</span>.
-        </p>
+      <p id="hero-subtitle">
+  Handpicked favorites from your host, plus top-rated spots nearby in
+  <span id="hero-zip">your area</span>.
+</p>
+
+<p class="hero-purpose">
+  Our favorite places to eat nearby 
+</p>
         <div class="hero-tags">
           <div class="tag-pill">
             <span class="dot"></span>
