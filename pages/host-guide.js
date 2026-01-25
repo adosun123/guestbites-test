@@ -10,39 +10,89 @@ const HostGuidePage = () => {
   const [h2Note, setH2Note] = useState("");
   const [showResult, setShowResult] = useState(false);
 
+  // Optional: host email field (so you can reply / follow up)
+  const [hostEmail, setHostEmail] = useState("");
+
+  // UX states
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMsg, setSubmitMsg] = useState("");
+
   const guestUrl = useMemo(() => {
     if (!zip) return "";
 
     const params = new URLSearchParams();
     params.set("zip", zip);
     if (propertyName) params.set("propertyName", propertyName);
+
     if (h1Name) {
       params.set("h1Name", h1Name);
       if (h1Note) params.set("h1Note", h1Note);
     }
+
     if (h2Name) {
       params.set("h2Name", h2Name);
       if (h2Note) params.set("h2Note", h2Note);
     }
 
     let origin = "";
-    if (typeof window !== "undefined") {
-      origin = window.location.origin;
-    }
+    if (typeof window !== "undefined") origin = window.location.origin;
 
-    if (!origin) {
-      return "/guest-guide?" + params.toString();
-    }
-
+    if (!origin) return "/guest-guide?" + params.toString();
     return origin + "/guest-guide?" + params.toString();
   }, [zip, propertyName, h1Name, h1Note, h2Name, h2Note]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    setSubmitMsg("");
+
     if (!zip) {
       alert("Please enter a ZIP code");
       return;
     }
+
     setShowResult(true);
+
+    // Submit to your API (lightweight tracking)
+    try {
+      setIsSubmitting(true);
+
+      const payload = {
+        hostEmail: hostEmail.trim() || null,
+        propertyName: propertyName.trim() || null,
+        zip: zip.trim(),
+        hostPicks: [
+          h1Name.trim()
+            ? { name: h1Name.trim(), note: h1Note.trim() || null }
+            : null,
+          h2Name.trim()
+            ? { name: h2Name.trim(), note: h2Note.trim() || null }
+            : null,
+        ].filter(Boolean),
+        guestUrl,
+        source: "host-guide",
+        userAgent:
+          typeof navigator !== "undefined" ? navigator.userAgent : null,
+      };
+
+      const res = await fetch("/api/host-submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `Request failed: ${res.status}`);
+      }
+
+      setSubmitMsg("✅ Sent! (You’ll receive an email with the created guide.)");
+    } catch (err) {
+      console.error(err);
+      setSubmitMsg(
+        "⚠️ Couldn’t send right now. The guide still works, but tracking/email failed."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const labelStyle = { fontSize: 14, marginBottom: 4, display: "block" };
@@ -59,8 +109,7 @@ const HostGuidePage = () => {
     <div
       style={{
         minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, #1e293b 0, #020617 55%)",
+        background: "radial-gradient(circle at top, #1e293b 0, #020617 55%)",
         padding: 24,
         display: "flex",
         justifyContent: "center",
@@ -91,6 +140,14 @@ const HostGuidePage = () => {
             }}
           >
             <div style={{ marginBottom: 12 }}>
+              <label style={labelStyle}>Host email (optional)</label>
+              <input
+                style={inputStyle}
+                placeholder="you@email.com (so we can follow up)"
+                value={hostEmail}
+                onChange={(e) => setHostEmail(e.target.value)}
+              />
+
               <label style={labelStyle}>Property name</label>
               <input
                 style={inputStyle}
@@ -152,6 +209,7 @@ const HostGuidePage = () => {
 
             <button
               onClick={handleGenerate}
+              disabled={isSubmitting}
               style={{
                 marginTop: 10,
                 width: "100%",
@@ -160,24 +218,23 @@ const HostGuidePage = () => {
                 border: "none",
                 fontSize: 14,
                 fontWeight: 600,
-                cursor: "pointer",
-                background:
-                  "linear-gradient(120deg,#2563eb,#22c55e)",
+                cursor: isSubmitting ? "not-allowed" : "pointer",
+                opacity: isSubmitting ? 0.75 : 1,
+                background: "linear-gradient(120deg,#2563eb,#22c55e)",
                 color: "#fff",
               }}
             >
-              Generate guide link & QR
+              {isSubmitting ? "Sending..." : "Generate guide link & QR"}
             </button>
-            <p
-              style={{
-                fontSize: 12,
-                color: "#9ca3af",
-                marginTop: 6,
-              }}
-            >
+
+            <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 6 }}>
               You can paste the guest link into Airbnb, or print the QR for your
               welcome frame / fridge.
             </p>
+
+            {submitMsg ? (
+              <p style={{ fontSize: 12, marginTop: 10 }}>{submitMsg}</p>
+            ) : null}
           </div>
 
           {/* Right: link + QR */}
@@ -189,14 +246,12 @@ const HostGuidePage = () => {
               border: "1px solid rgba(148,163,184,0.6)",
             }}
           >
-            <h2 style={{ marginTop: 0, fontSize: 16 }}>
-              Guest link & QR preview
-            </h2>
+            <h2 style={{ marginTop: 0, fontSize: 16 }}>Guest link & QR preview</h2>
+
             {!showResult || !guestUrl ? (
               <p style={{ fontSize: 13, color: "#9ca3af" }}>
                 Fill the form on the left and click{" "}
-                <strong>Generate guide link & QR</strong> to see the result
-                here.
+                <strong>Generate guide link & QR</strong> to see the result here.
               </p>
             ) : (
               <>
@@ -216,11 +271,14 @@ const HostGuidePage = () => {
                   </div>
                   <a
                     href={guestUrl}
+                    target="_blank"
+                    rel="noreferrer"
                     style={{ color: "#93c5fd", textDecoration: "none" }}
                   >
                     {guestUrl}
                   </a>
                 </div>
+
                 <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                   <div
                     style={{
@@ -238,8 +296,7 @@ const HostGuidePage = () => {
                     </div>
                     <div>
                       • Screenshot or print this QR <br />
-                      • Or just copy and paste the guest link into your welcome
-                      message / guidebook
+                      • Or copy and paste the guest link into your welcome message
                     </div>
                   </div>
                 </div>
