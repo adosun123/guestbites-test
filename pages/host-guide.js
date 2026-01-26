@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+export async function getServerSideProps() {
+  return {
+    redirect: {
+      destination: "/host-guide.html",
+      permanent: false,
+    },
+  };
+}
 
-export default function HostGuide() {
-  useEffect(() => {
-    // Keep old /host-guide working, but render the exact UI you like:
-    window.location.replace("/host-guide.html");
-  }, []);
-
+export default function HostGuideRedirect() {
   return null;
 }
