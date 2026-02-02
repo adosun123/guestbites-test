@@ -12,7 +12,6 @@ function makeId() {
 }
 
 function esc(str = "") {
-  // basic HTML escape to avoid accidental HTML injection in emails
   return String(str)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -27,6 +26,11 @@ function firstNonEmpty(...vals) {
     if (s) return s;
   }
   return "";
+}
+
+function isValidEmail(email = "") {
+  // lightweight check (good enough for now)
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
 export default async function handler(req, res) {
@@ -45,21 +49,25 @@ export default async function handler(req, res) {
   const data = req.body || {};
   const submissionId = makeId();
 
-  // ✅ NEW: hostName support (optional)
   const hostName = (data.hostName || "").toString().trim();
-
   const hostEmail = (data.hostEmail || "").toString().trim();
   const propertyName = (data.propertyName || "").toString().trim();
   const zip = (data.zip || "").toString().trim();
   const guestUrl = (data.guestUrl || "").toString().trim();
 
-  // Used to make subject line human-readable even if name/email missing
   const who = firstNonEmpty(hostName, hostEmail, "unknown-host");
   const where = firstNonEmpty(zip, "no-zip");
 
+  // IMPORTANT:
+  // While your domain is NOT verified, keep onboarding@resend.dev.
+  // After verification, switch to: "GuestBites <hello@guestbites.com>"
+  const FROM = "GuestBites <hello@guestbites.com>";
+
+
   try {
-    await resend.emails.send({
-      from: "GuestBites <onboarding@resend.dev>",
+    // 1) Admin notification (to you)
+    const adminSend = resend.emails.send({
+      from: FROM,
       to: "adoram@pulseip.com",
       subject: `GuestBites Host Submission (${submissionId}) — ${who} — ${where}`,
       html: `
@@ -73,9 +81,7 @@ export default async function handler(req, res) {
           <p style="margin:0 0 6px"><strong>ZIP:</strong> ${esc(zip || "(not provided)")}</p>
           <p style="margin:0 0 12px"><strong>Guest URL:</strong> ${
             guestUrl
-              ? `<a href="${esc(guestUrl)}" target="_blank" rel="noreferrer">${esc(
-                  guestUrl
-                )}</a>`
+              ? `<a href="${esc(guestUrl)}" target="_blank" rel="noreferrer">${esc(guestUrl)}</a>`
               : esc("(not provided)")
           }</p>
 
@@ -91,7 +97,51 @@ export default async function handler(req, res) {
       `,
     });
 
-    return res.status(200).json({ success: true, submissionId });
+    // 2) Host email (only if hostEmail exists + looks valid)
+    let hostSend = null;
+    const sendToHost = isValidEmail(hostEmail) && !!guestUrl;
+
+    if (sendToHost) {
+      const friendlyName = hostName || "there";
+      const niceProperty = propertyName || "your property";
+
+      hostSend = resend.emails.send({
+        from: FROM,
+        to: hostEmail,
+        // this helps you reply back to them easily (optional)
+        reply_to: "adoram@pulseip.com",
+        subject: "Your GuestBites guide link is ready",
+        html: `
+          <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; line-height:1.5">
+            <p style="margin:0 0 12px">Hi ${esc(friendlyName)} 👋</p>
+
+            <p style="margin:0 0 12px">
+              Your GuestBites food guide for <strong>${esc(niceProperty)}</strong> is ready.
+            </p>
+
+            <p style="margin:0 0 8px"><strong>Your guest link:</strong></p>
+            <p style="margin:0 0 16px">
+              <a href="${esc(guestUrl)}" target="_blank" rel="noreferrer">${esc(guestUrl)}</a>
+            </p>
+
+            <p style="margin:0 0 12px;color:#6b7280;font-size:13px">
+              Tip: copy/paste this link into your welcome message, or open it and screenshot the QR code to print.
+            </p>
+
+            <p style="margin:18px 0 0">— GuestBites</p>
+          </div>
+        `,
+      });
+    }
+
+    // Run both in parallel (faster)
+    await Promise.all([adminSend, hostSend].filter(Boolean));
+
+    return res.status(200).json({
+      success: true,
+      submissionId,
+      emailedHost: !!sendToHost,
+    });
   } catch (error) {
     console.error("Resend error:", error);
     return res.status(500).json({
