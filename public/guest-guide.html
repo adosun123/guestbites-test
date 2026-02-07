@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />  
+  <meta charset="UTF-8" />
 
   <!-- Social Preview (Open Graph) -->
   <meta property="og:title" content="Your GuestBites Food Guide" />
@@ -14,6 +14,7 @@
 
   <title>GuestBites – Guest Food Guide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
     :root {
       --bg: #0f172a;
@@ -81,17 +82,17 @@
       color: var(--accent);
     }
 
-  .hero-text p {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
-}
+    .hero-text p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
 
-.hero-text .hero-purpose {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-top: 0.5rem;
-}
+    .hero-text .hero-purpose {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
 
     .hero-tags {
       margin-top: 0.85rem;
@@ -254,6 +255,15 @@
       font-weight: 500;
     }
 
+    /* Featured partner styling */
+    .partner-badge {
+      background: rgba(147, 197, 253, 0.12);
+      color: #93c5fd;
+    }
+    .partner-badge .dot {
+      background: #93c5fd;
+    }
+
     @media (min-width: 640px) {
       body {
         padding: 2.5rem 1.5rem;
@@ -267,22 +277,21 @@
     }
   </style>
 </head>
+
 <body>
   <main class="page">
     <section class="hero">
       <div class="hero-icon">🍽</div>
       <div class="hero-text">
-        <h1 id="hero-title">
-          Welcome to <span id="property-name">Your Stay</span>
-        </h1>
-      <p id="hero-subtitle">
-  Handpicked favorites from your host, plus top-rated spots nearby in
-  <span id="hero-zip">your area</span>.
-</p>
+        <h1 id="hero-title">Welcome to <span id="property-name">Your Stay</span></h1>
 
-<p class="hero-purpose">
-  Our favorite places to eat nearby 
-</p>
+        <p id="hero-subtitle">
+          Handpicked favorites from your host, plus top-rated spots nearby in
+          <span id="hero-zip">your area</span>.
+        </p>
+
+        <p class="hero-purpose">Our favorite places to eat nearby</p>
+
         <div class="hero-tags">
           <div class="tag-pill">
             <span class="dot"></span>
@@ -296,14 +305,24 @@
       </div>
     </section>
 
+    <!-- Featured Local Partner (BEFORE Host Picks) -->
+    <section class="section" id="partner-section" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Featured Local Partner</div>
+          <div class="section-subtitle">Special picks curated for this area.</div>
+        </div>
+        <div class="section-subtitle">Sponsored</div>
+      </div>
+      <div class="cards" id="partner-list"></div>
+    </section>
+
     <!-- Host Picks -->
     <section class="section" id="host-picks-section">
       <div class="section-header">
         <div>
           <div class="section-title">Host Picks</div>
-          <div class="section-subtitle">
-            Personal favorites your host recommends for this stay.
-          </div>
+          <div class="section-subtitle">Personal favorites your host recommends for this stay.</div>
         </div>
       </div>
       <div class="cards" id="host-picks-list"></div>
@@ -314,15 +333,13 @@
       <div class="section-header">
         <div>
           <div class="section-title">Nearby Bites & Sips</div>
-          <div class="section-subtitle">
-            Pulled from top-rated spots around you.
-          </div>
+          <div class="section-subtitle">Pulled from top-rated spots around you.</div>
         </div>
-        <div class="section-subtitle" id="local-powered-by">
-          Powered by Foursquare
-        </div>
+        <div class="section-subtitle" id="local-powered-by">Powered by Foursquare</div>
       </div>
+
       <div class="cards" id="local-list"></div>
+
       <div id="local-empty" class="local-empty" style="display:none;">
         We couldn't load nearby places right now. You can still use your host’s
         recommendations above – they’re solid picks. 😊
@@ -330,10 +347,9 @@
     </section>
 
     <footer class="footer">
-  Guide created with <span>GuestBites</span> – local flavor for every stay.<br />
-  Feedback or questions? <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
-</footer>
-
+      Guide created with <span>GuestBites</span> – local flavor for every stay.<br />
+      Feedback or questions? <a href="mailto:hello@guestbites.com">hello@guestbites.com</a>
+    </footer>
   </main>
 
   <script>
@@ -347,16 +363,12 @@
 
       const zip = getParam("zip");
       const propertyName = getParam("propertyName", "");
-      const heroTitleEl = document.getElementById("hero-title");
+
       const propertyNameEl = document.getElementById("property-name");
       const heroZipEl = document.getElementById("hero-zip");
       const zipPillLabelEl = document.getElementById("zip-pill-label");
 
-      if (propertyName) {
-        propertyNameEl.textContent = propertyName;
-      } else {
-        propertyNameEl.textContent = "Your Stay";
-      }
+      propertyNameEl.textContent = propertyName || "Your Stay";
 
       if (zip) {
         heroZipEl.textContent = zip;
@@ -366,17 +378,146 @@
         zipPillLabelEl.textContent = "Near you";
       }
 
-      // Build host picks
+      // ==========================
+      // Featured Partner (Option A)
+      // ==========================
+
+      const partnerBuckets = {
+        downtown_gv: [
+          { name: "Martini Modern Italian", url: "https://martinimodernitalian.com/" },
+          { name: "The Guild House", url: "https://theguildhousecolumbus.com/" },
+          { name: "Cento", url: "https://centogermanvillage.com/" }
+        ],
+        bexley: [
+          { name: "Rusty Bucket (Bexley)", url: "https://myrustybucket.com/" }
+        ],
+        gahanna_easton_newalbany: [
+          { name: "The Barn", url: "https://thebarncolumbus.com/" },
+          { name: "Cap City Fine Diner", url: "https://capcityfinediner.com/" },
+          { name: "Hudson 29", url: "https://hudson29.com/" },
+          { name: "Mitchell's Ocean Club (Ocean Prime)", url: "https://ocean-prime.com/locations-menus/columbus/" },
+          { name: "Del Mar Easton", url: "https://delmarmediterranean.com/locations-menus/columbus/" }
+        ]
+      };
+
+      const zipToBucket = {
+        // Downtown / German Village / Short North-ish
+        "43206": "downtown_gv",
+        "43215": "downtown_gv",
+        "43201": "downtown_gv",
+        "43203": "downtown_gv",
+        "43211": "downtown_gv",
+
+        // Bexley
+        "43209": "bexley",
+
+        // Gahanna / Easton / New Albany-ish
+        "43230": "gahanna_easton_newalbany",
+        "43219": "gahanna_easton_newalbany",
+        "43054": "gahanna_easton_newalbany"
+      };
+
+      function isColumbusZip(z) {
+        return typeof z === "string" && (z.startsWith("432") || z.startsWith("430"));
+      }
+
+      function getPartnerBucketForZip(z) {
+        if (!z || !isColumbusZip(z)) return null;
+        return zipToBucket[z] || null;
+      }
+
+      function buildTrackableUrl(outUrl, bucket, zip) {
+        const safe = outUrl.startsWith("http") ? outUrl : "https://" + outUrl;
+        const u = new URL(safe);
+        u.searchParams.set("gb_source", "featured_partner");
+        u.searchParams.set("gb_partner", "cameron_mitchell");
+        u.searchParams.set("gb_bucket", bucket || "unknown");
+        u.searchParams.set("gb_zip", zip || "");
+        return u.toString();
+      }
+
+      function renderFeaturedPartner(z) {
+        const section = document.getElementById("partner-section");
+        const list = document.getElementById("partner-list");
+        if (!section || !list) return;
+
+        const bucket = getPartnerBucketForZip(z);
+        const items = bucket ? (partnerBuckets[bucket] || []) : [];
+
+        if (!items.length) {
+          section.style.display = "none";
+          return;
+        }
+
+        section.style.display = "block";
+        list.innerHTML = "";
+
+        items.forEach((item) => {
+          const card = document.createElement("article");
+          card.className = "card";
+
+          const main = document.createElement("div");
+          main.className = "card-main";
+
+          const badge = document.createElement("div");
+          badge.className = "card-badge partner-badge";
+          badge.innerHTML = '<span class="dot"></span> Cameron Mitchell Restaurants';
+
+          const title = document.createElement("div");
+          title.className = "card-title";
+          title.textContent = item.name;
+
+          const note = document.createElement("div");
+          note.className = "card-note";
+          note.textContent = "Official website & menu";
+
+          const linkRow = document.createElement("div");
+          linkRow.className = "card-link";
+
+          const a = document.createElement("a");
+          a.href = buildTrackableUrl(item.url, bucket, z);
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.textContent = "Open website";
+
+          a.addEventListener("click", () => {
+            try {
+              if (typeof window.gtag === "function") {
+                window.gtag("event", "partner_click", {
+                  partner: "cameron_mitchell",
+                  restaurant: item.name,
+                  bucket: bucket || "unknown",
+                  zip: z || "",
+                  property_name: propertyName || ""
+                });
+              }
+            } catch (_) {}
+          });
+
+          linkRow.appendChild(a);
+
+          main.appendChild(badge);
+          main.appendChild(title);
+          main.appendChild(note);
+          main.appendChild(linkRow);
+
+          card.appendChild(main);
+          list.appendChild(card);
+        });
+      }
+
+      renderFeaturedPartner(zip);
+
+      // =========
+      // Host Picks
+      // =========
+
       const hostPicks = [];
       for (let i = 1; i <= 3; i++) {
         const name = getParam(`h${i}Name`);
         const note = getParam(`h${i}Note`);
         if (name) {
-          hostPicks.push({
-            name,
-            note: note || "",
-            index: i
-          });
+          hostPicks.push({ name, note: note || "", index: i });
         }
       }
 
@@ -438,7 +579,10 @@
         });
       }
 
-      // Local recommendations via your Vercel API
+      // ======================
+      // Local recommendations
+      // ======================
+
       const localListEl = document.getElementById("local-list");
       const localEmptyEl = document.getElementById("local-empty");
 
@@ -452,33 +596,31 @@
           const url = `/api/places?zip=${encodeURIComponent(zip)}`;
           const res = await fetch(url);
 
-          if (!res.ok) {
-            throw new Error("Places API error: " + res.status);
-          }
+          if (!res.ok) throw new Error("Places API error: " + res.status);
 
           const data = await res.json();
-         const places = Array.isArray(data.results)
-  ? data.results
-  : Array.isArray(data)
-  ? data
-  : [];
+          const places = Array.isArray(data.results)
+            ? data.results
+            : Array.isArray(data)
+            ? data
+            : [];
 
-// Remove known closed places (quick fix)
-const blocked = ["m at miranova"];
+          // Hard-block specific closed/outdated places
+          const BLOCKED_NAMES = new Set(["M at Miranova"]);
+         const filteredPlaces = places
+  .filter(p => {
+    const n = (p.name || "").trim();
+    return n && !BLOCKED_NAMES.has(n);
+  })
+  .slice(0, 8); // 👈 limit to top 8
 
-const filteredPlaces = places.filter(p =>
-  !blocked.some(b => (p.name || "").toLowerCase().includes(b))
-);
 
-
-         if (!filteredPlaces.length) {
-
+          if (!filteredPlaces.length) {
             localEmptyEl.style.display = "block";
             return;
           }
 
           filteredPlaces.forEach((place) => {
-
             const card = document.createElement("article");
             card.className = "card";
 
@@ -487,8 +629,7 @@ const filteredPlaces = places.filter(p =>
 
             const badge = document.createElement("div");
             badge.className = "card-badge";
-            badge.innerHTML =
-              '<span class="dot"></span> Nearby favorite';
+            badge.innerHTML = '<span class="dot"></span> Nearby favorite';
 
             const title = document.createElement("div");
             title.className = "card-title";
@@ -535,6 +676,7 @@ const filteredPlaces = places.filter(p =>
 
             const linkRow = document.createElement("div");
             linkRow.className = "card-link";
+
             const mapsQueryParts = [];
             if (place.name) mapsQueryParts.push(place.name);
             if (place.location && place.location.formatted_address) {
@@ -542,6 +684,7 @@ const filteredPlaces = places.filter(p =>
             } else if (zip) {
               mapsQueryParts.push(zip);
             }
+
             const mapsQuery = mapsQueryParts.join(" ");
             const mapsUrl =
               "https://www.google.com/maps/search/?api=1&query=" +
@@ -575,6 +718,5 @@ const filteredPlaces = places.filter(p =>
       loadLocalPlaces();
     })();
   </script>
-
 </body>
 </html>
