@@ -457,18 +457,28 @@
           }
 
           const data = await res.json();
-          const places = Array.isArray(data.results)
-            ? data.results
-            : Array.isArray(data)
-            ? data
-            : [];
+         const places = Array.isArray(data.results)
+  ? data.results
+  : Array.isArray(data)
+  ? data
+  : [];
 
-          if (!places.length) {
+// Remove known closed places (quick fix)
+const blocked = ["m at miranova"];
+
+const filteredPlaces = places.filter(p =>
+  !blocked.some(b => (p.name || "").toLowerCase().includes(b))
+);
+
+
+         if (!filteredPlaces.length) {
+
             localEmptyEl.style.display = "block";
             return;
           }
 
-          places.forEach((place) => {
+          filteredPlaces.forEach((place) => {
+
             const card = document.createElement("article");
             card.className = "card";
 
