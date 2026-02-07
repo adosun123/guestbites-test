@@ -492,17 +492,19 @@
           a.rel = "noopener noreferrer";
           a.textContent = "Open website";
 
-          a.addEventListener("click", () => {
-  if (typeof gtag === "function") {
-    gtag("event", "select_content", {
-      content_type: "featured_partner",
-      item_id: "cameron_mitchell",
-      item_name: item.name,
-      gb_bucket: bucket || "unknown",
-      gb_zip: zip || ""
-    });
-  }
+a.addEventListener("click", () => {
+  gtag("event", "featured_partner_click", {
+    debug_mode: true,
+    transport_type: "beacon",
+
+    partner: "cameron_mitchell",
+    restaurant: item.name,
+    gb_bucket: bucket || "unknown",
+    gb_zip: zip || ""
+  });
 });
+
+
 
           linkRow.appendChild(a);
 
