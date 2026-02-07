@@ -12,6 +12,19 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://try.guestbites.com/preview.png" />
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYRX4X3TPM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // This sends the pageview
+  gtag('config', 'G-PYRX4X3TPM', {
+    send_page_view: true
+  });
+</script>
+
   <title>GuestBites – Guest Food Guide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -480,18 +493,16 @@
           a.textContent = "Open website";
 
           a.addEventListener("click", () => {
-            try {
-              if (typeof window.gtag === "function") {
-                window.gtag("event", "partner_click", {
-                  partner: "cameron_mitchell",
-                  restaurant: item.name,
-                  bucket: bucket || "unknown",
-                  zip: z || "",
-                  property_name: propertyName || ""
-                });
-              }
-            } catch (_) {}
-          });
+  if (typeof gtag === "function") {
+    gtag("event", "select_content", {
+      content_type: "featured_partner",
+      item_id: "cameron_mitchell",
+      item_name: item.name,
+      gb_bucket: bucket || "unknown",
+      gb_zip: zip || ""
+    });
+  }
+});
 
           linkRow.appendChild(a);
 
