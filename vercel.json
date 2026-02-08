@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/host-guide.html",
+      "permanent": false
+    }
+  ]
+}
