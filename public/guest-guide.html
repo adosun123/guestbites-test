@@ -565,6 +565,16 @@ a.addEventListener("click", () => {
   return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
 }
 
+
+function getIcon(name) {
+  const lower = (name || "").toLowerCase();
+
+  if (lower.includes("pizza")) return "🍕";
+  if (lower.includes("ice") || lower.includes("cream")) return "🍦";
+  if (lower.includes("giuseppe") || lower.includes("italian")) return "🍝";
+
+  return "🍽";
+}
 function getHostPickActions(name) {
   const lower = (name || "").toLowerCase();
 
@@ -610,7 +620,7 @@ if (lower.includes("graeter")) {
 
           const title = document.createElement("div");
           title.className = "card-title";
-          title.textContent = pick.name;
+          title.textContent = getIcon(pick.name) + " " + pick.name;
 
           const note = document.createElement("div");
           note.className = "card-note";
