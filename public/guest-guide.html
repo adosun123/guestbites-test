@@ -245,6 +245,31 @@
     .card-link a:hover {
       text-decoration: underline;
     }
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text-main);
+}
+
+.action-btn.primary {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
 
     .local-empty,
     .error-text {
@@ -490,7 +515,7 @@
           a.href = buildTrackableUrl(item.url, bucket, z);
           a.target = "_blank";
           a.rel = "noopener noreferrer";
-          a.textContent = "Open website";
+          a.textContent = "View menu";
 
 a.addEventListener("click", () => {
   gtag("event", "featured_partner_click", {
@@ -536,9 +561,34 @@ a.addEventListener("click", () => {
       const hostListEl = document.getElementById("host-picks-list");
 
       function buildMapsUrl(name) {
-        const query = zip ? `${name} ${zip}` : name;
-        return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
-      }
+  const query = zip ? `${name} ${zip}` : name;
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
+}
+
+function getHostPickActions(name) {
+  const lower = (name || "").toLowerCase();
+
+  if (lower.includes("bexley pizza")) {
+    return [
+      { label: "📞 Call to order", href: "tel:+16142373305", primary: true },
+      { label: "📋 View menu", href: "https://www.bexleypizzaplus.com/" }
+    ];
+  }
+
+  if (lower.includes("giuseppe")) {
+    return [
+      { label: "🍽️ View menu", href: "https://www.giuseppesritrovo.com/", primary: true }
+    ];
+  }
+
+  if (lower.includes("graeter")) {
+    return [
+      { label: "🍦 Order delivery", href: "https://www.doordash.com/search/store/graeter's%20ice%20cream%20near%2043209/", primary: true }
+    ];
+  }
+
+  return [];
+}
 
       if (!hostPicks.length) {
         hostSection.style.display = "none";
@@ -570,20 +620,40 @@ a.addEventListener("click", () => {
             '<span class="pill-icon">⭐</span><strong>GuestBites Tip</strong> · Start here if you\'re not sure where to go.';
           meta.appendChild(pill);
 
-          const linkRow = document.createElement("div");
-          linkRow.className = "card-link";
-          const a = document.createElement("a");
-          a.href = buildMapsUrl(pick.name);
-          a.target = "_blank";
-          a.rel = "noopener noreferrer";
-          a.textContent = "Open in Maps";
-          linkRow.appendChild(a);
+         const actions = getHostPickActions(pick.name);
+
+const actionRow = document.createElement("div");
+actionRow.className = "card-actions";
+
+actions.forEach((action) => {
+  const btn = document.createElement("a");
+  btn.className = action.primary ? "action-btn primary" : "action-btn";
+  btn.href = action.href;
+  btn.target = action.href.startsWith("tel:") ? "_self" : "_blank";
+  btn.rel = action.href.startsWith("tel:") ? "" : "noopener noreferrer";
+  btn.textContent = action.label;
+  actionRow.appendChild(btn);
+});
+
+const linkRow = document.createElement("div");
+linkRow.className = "card-link";
+const a = document.createElement("a");
+a.href = buildMapsUrl(pick.name);
+a.target = "_blank";
+a.rel = "noopener noreferrer";
+a.textContent = "Directions";
+linkRow.appendChild(a);
 
           main.appendChild(badge);
           main.appendChild(title);
           main.appendChild(note);
-          main.appendChild(meta);
-          main.appendChild(linkRow);
+        main.appendChild(meta);
+
+if (actions.length) {
+  main.appendChild(actionRow);
+}
+
+main.appendChild(linkRow);
 
           card.appendChild(main);
           hostListEl.appendChild(card);
