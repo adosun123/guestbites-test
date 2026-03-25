@@ -578,6 +578,7 @@ function getIcon(name) {
 function getHostPickActions(name) {
   const lower = (name || "").toLowerCase();
 
+  // Bexley Pizza Plus
   if (lower.includes("bexley pizza")) {
     return [
       { label: "📞 Call to order", href: "tel:+16142373305", primary: true },
@@ -585,25 +586,47 @@ function getHostPickActions(name) {
     ];
   }
 
+  // Giuseppe’s Ritrovo
   if (lower.includes("giuseppe")) {
     return [
       { label: "🍽️ View menu", href: "https://www.giuseppesritrovo.com/", primary: true }
     ];
   }
 
-if (lower.includes("graeter")) {
-  return [
-    { 
-      label: "🍦 Order delivery", 
-      href: "https://www.doordash.com/store/graeters-bexley-584816/", 
-      primary: true 
-    }
-  ];
-}
+  // Graeter’s Ice Cream
+  if (lower.includes("graeter")) {
+    return [
+      { 
+        label: "🍦 Order delivery", 
+        href: "https://www.doordash.com/store/graeters-bexley-584816/", 
+        primary: true 
+      }
+    ];
+  }
+
+  // Fox in the Snow
+  if (lower.includes("fox in the snow")) {
+    return [
+      { label: "☕ View menu", href: "https://www.foxinthesnow.com/", primary: true }
+    ];
+  }
+
+  // Comune
+  if (lower.includes("comune")) {
+    return [
+      { label: "🌱 View menu", href: "https://www.comune-restaurant.com/", primary: true }
+    ];
+  }
+
+  // Pistacia Vera
+  if (lower.includes("pistacia")) {
+    return [
+      { label: "🥐 View menu", href: "https://www.pistaciavera.com/", primary: true }
+    ];
+  }
 
   return [];
 }
-
       if (!hostPicks.length) {
         hostSection.style.display = "none";
       } else {
