@@ -772,14 +772,18 @@ async function loadLocalPlaces() {
         const n = (p.name || "").trim();
         const lower = n.toLowerCase();
 
-        return (
-          n &&
-          !BLOCKED_NAMES.has(n) &&
-          !hostPickNames.some(h => lower.includes(h) || h.includes(lower)) &&
-          !partnerNames.some(pn => lower.includes(pn) || pn.includes(lower))
-        );
-      })
-      .slice(0, 8);
+     return (
+      n &&
+      !BLOCKED_NAMES.has(n) &&
+      !hostPickNames.some(h => lower.includes(h) || h.includes(lower)) &&
+      !partnerNames.some(pn =>
+        lower.includes(pn) ||
+        pn.includes(lower) ||
+        (pn.includes("barn") && lower.includes("barn"))
+      )
+    );
+  })
+  .slice(0, 8);
 
     if (!filteredPlaces.length) {
       localEmptyEl.style.display = "block";
