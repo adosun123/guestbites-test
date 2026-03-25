@@ -581,11 +581,15 @@ function getHostPickActions(name) {
     ];
   }
 
-  if (lower.includes("graeter")) {
-    return [
-      { label: "🍦 Order delivery", href: "href: "https://www.doordash.com/store/graeters-bexley-584816/", primary: true }
-    ];
-  }
+if (lower.includes("graeter")) {
+  return [
+    { 
+      label: "🍦 Order delivery", 
+      href: "https://www.doordash.com/store/graeters-bexley-584816/", 
+      primary: true 
+    }
+  ];
+}
 
   return [];
 }
