@@ -569,12 +569,16 @@ a.addEventListener("click", () => {
 function getIcon(name) {
   const lower = (name || "").toLowerCase();
 
-  // Specific places (highest priority)
+  // Specific places
   if (lower.includes("fox in the snow")) return "☕";
   if (lower.includes("comune")) return "🌱";
   if (lower.includes("pistacia")) return "🥐";
 
-  // General categories
+  // New Gahanna ones
+  if (lower.includes("mr sushi") || lower.includes("sushi")) return "🍣";
+  if (lower.includes("barn")) return "🥩";
+
+  // General
   if (lower.includes("pizza")) return "🍕";
   if (lower.includes("ice") || lower.includes("cream")) return "🍦";
   if (lower.includes("giuseppe") || lower.includes("italian")) return "🍝";
@@ -630,6 +634,28 @@ function getHostPickActions(name) {
       { label: "🥐 View menu", href: "https://www.pistaciavera.com/", primary: true }
     ];
   }
+
+// Sexton’s Pizza
+if (lower.includes("sexton")) {
+  return [
+    { label: "📞 Call to order", href: "tel:+16144752100", primary: true },
+    { label: "📋 View menu", href: "https://sextonspizza.com/" }
+  ];
+}
+
+// Mr. Sushi
+if (lower.includes("mr sushi") || lower.includes("mr. sushi")) {
+  return [
+    { label: "🍣 View menu", href: "https://mrsushicolumbus.com/", primary: true }
+  ];
+}
+
+// The Barn at Rocky Fork Creek
+if (lower.includes("barn")) {
+  return [
+    { label: "🥩 View menu", href: "https://thebarncolumbus.com/", primary: true }
+  ];
+}
 
   return [];
 }
