@@ -569,6 +569,12 @@ a.addEventListener("click", () => {
 function getIcon(name) {
   const lower = (name || "").toLowerCase();
 
+  // Specific places (highest priority)
+  if (lower.includes("fox in the snow")) return "☕";
+  if (lower.includes("comune")) return "🌱";
+  if (lower.includes("pistacia")) return "🥐";
+
+  // General categories
   if (lower.includes("pizza")) return "🍕";
   if (lower.includes("ice") || lower.includes("cream")) return "🍦";
   if (lower.includes("giuseppe") || lower.includes("italian")) return "🍝";
