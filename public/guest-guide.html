@@ -700,14 +700,24 @@ main.appendChild(linkRow);
             ? data
             : [];
 
-          // Hard-block specific closed/outdated places
-          const BLOCKED_NAMES = new Set(["M at Miranova"]);
-         const filteredPlaces = places
+         // Hard-block specific closed/outdated places
+const BLOCKED_NAMES = new Set(["M at Miranova"]);
+
+// Get host pick names (lowercase)
+const hostPickNames = hostPicks.map(p => p.name.toLowerCase());
+
+const filteredPlaces = places
   .filter(p => {
     const n = (p.name || "").trim();
-    return n && !BLOCKED_NAMES.has(n);
+    const lower = n.toLowerCase();
+
+    return (
+      n &&
+      !BLOCKED_NAMES.has(n) &&
+      !hostPickNames.some(h => lower.includes(h) || h.includes(lower)) // 👈 removes duplicates
+    );
   })
-  .slice(0, 8); // 👈 limit to top 8
+  .slice(0, 8); // limit to top 8
 
 
           if (!filteredPlaces.length) {
