@@ -527,8 +527,7 @@
     </section>
 
 <!-- Ask GuestBites -->
-
-<section class="section" id="ask-guestbites-section" style="display:none;">
+<section class="section" id="ask-guestbites-section">
   <div class="gb-ask-box">
     <div class="gb-ask-head">
       <div class="gb-ask-icon">✨</div>
@@ -610,7 +609,6 @@
       }
 
       const zip = getParam("zip", "43209");
-      const isBexleyGuide = zip === "43209";
       const propertyName = getParam("propertyName", "");
 
       const propertyNameEl = document.getElementById("property-name");
@@ -755,9 +753,6 @@ a.addEventListener("click", () => {
       }
 
       renderFeaturedPartner(zip);
-if (isBexleyGuide) {
-  document.getElementById("ask-guestbites-section").style.display = "block";
-}
 
       // =========
       // Host Picks
