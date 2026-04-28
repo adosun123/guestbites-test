@@ -1000,7 +1000,18 @@ else if (q.includes("delivery")) {
 } 
 else if (q.includes("breakfast")) {
   filtered = picks.filter(p => p.tags.includes("breakfast"));
-} 
+
+  if (!filtered.length && isBexleyGuide) {
+    filtered = [
+      {
+        name: "Kittie’s Cakes",
+        note: "Good local option for coffee, pastries, and a quick breakfast.",
+        type: "Nearby Pick",
+        tags: "breakfast coffee pastries morning"
+      }
+    ];
+  }
+}
 else if (q.includes("coffee")) {
   filtered = picks.filter(p => p.tags.includes("coffee"));
 } 
