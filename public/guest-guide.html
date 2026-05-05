@@ -540,14 +540,14 @@
 
     <div class="gb-ask-row">
       <input id="gb-question" placeholder="Pizza delivery, breakfast nearby, Italian with kids..." />
-      <button onclick="askGuestBites()">Ask</button>
+      <button onclick="gtag('event','ask_guestbites',{action:'manual'}); askGuestBites();">Ask</button>
     </div>
 
     <div class="gb-quick-buttons">
-      <button onclick="askQuick('Pizza delivery tonight')">Pizza delivery</button>
-      <button onclick="askQuick('Italian with kids nearby')">Italian with kids</button>
-      <button onclick="askQuick('Quick breakfast nearby')">Breakfast</button>
-      <button onclick="askQuick('Dessert with kids')">Dessert</button>
+      <button onclick="gtag('event','ask_guestbites',{action:'quick', query:'pizza_delivery'}); askQuick('Pizza delivery tonight')">Pizza delivery</button>
+<button onclick="gtag('event','ask_guestbites',{action:'quick', query:'italian_with_kids'}); askQuick('Italian with kids nearby')">Italian with kids</button>
+<button onclick="gtag('event','ask_guestbites',{action:'quick', query:'breakfast'}); askQuick('Quick breakfast nearby')">Breakfast</button>
+<button onclick="gtag('event','ask_guestbites',{action:'quick', query:'dessert'}); askQuick('Dessert with kids')">Dessert</button>
     </div>
 
     <div id="gb-answer"></div>
@@ -735,11 +735,11 @@ a.addEventListener("click", () => {
 
     partner: "cameron_mitchell",
     restaurant: item.name,
+    section: "featured",
     gb_bucket: bucket || "unknown",
     gb_zip: zip || ""
   });
 });
-
 
 
           linkRow.appendChild(a);
@@ -1116,22 +1116,29 @@ if (q.includes("delivery")) {
 
   output.innerHTML = `
   <div class="gb-featured-result"
-       onclick="window.open('${buildMapsUrl(topPick.name)}', '_blank')">
-
+     onclick="gtag('event','restaurant_click',{
+       restaurant: '${topPick.name}',
+       section: 'ask_featured',
+       action: 'maps'
+     }); window.open('${buildMapsUrl(topPick.name)}', '_blank')">
     <div class="gb-featured-badge">✨ Best match</div>
     <div class="gb-featured-title">${getIcon(topPick.name)} ${topPick.name}</div>
     <div class="gb-featured-note">${topPick.note}</div>
 
   <div class="gb-featured-actions">
     ${buildGuestBitesActions(recommendations[0]).map((action) => `
-      <a class="${action.primary ? "action-btn primary" : "action-btn"}"
-   href="${action.href}"
-   onclick="event.stopPropagation()"
-   target="${action.href.startsWith("tel:") ? "_self" : "_blank"}"
-   rel="${action.href.startsWith("tel:") ? "" : "noopener noreferrer"}">
-         ${action.label}
-      </a>
-    `).join("")}
+  <a class="${action.primary ? "action-btn primary" : "action-btn"}"
+     href="${action.href}"
+     onclick="event.stopPropagation(); gtag('event','restaurant_click',{
+       restaurant: '${recommendations[0].name}',
+       section: 'ask_result',
+       action: '${action.label.includes("Call") ? "call" : action.label.includes("Direction") ? "maps" : "menu"}'
+     });"
+     target="${action.href.startsWith("tel:") ? "_self" : "_blank"}"
+     rel="${action.href.startsWith("tel:") ? "" : "noopener noreferrer"}">
+     ${action.label}
+  </a>
+`).join("")}
   </div>
 </div>
 
@@ -1206,24 +1213,42 @@ renderHostPicks();
       const actionRow = document.createElement("div");
       actionRow.className = "card-actions";
 
-      actions.forEach((action) => {
-        const btn = document.createElement("a");
-        btn.className = action.primary ? "action-btn primary" : "action-btn";
-        btn.href = action.href;
-        btn.target = action.href.startsWith("tel:") ? "_self" : "_blank";
-        btn.rel = action.href.startsWith("tel:") ? "" : "noopener noreferrer";
-        btn.textContent = action.label;
-        actionRow.appendChild(btn);
-      });
+    actions.forEach((action) => {
+  const btn = document.createElement("a");
+  btn.className = action.primary ? "action-btn primary" : "action-btn";
+  btn.href = action.href;
+  btn.target = action.href.startsWith("tel:") ? "_self" : "_blank";
+  btn.rel = action.href.startsWith("tel:") ? "" : "noopener noreferrer";
+  btn.textContent = action.label;
+
+  btn.addEventListener("click", () => {
+    gtag("event", "restaurant_click", {
+      restaurant: pick.name,
+      section: "host_pick",
+      action: action.label.includes("Call") ? "call" : "menu"
+    });
+  });
+
+  actionRow.appendChild(btn);
+});
 
       const linkRow = document.createElement("div");
       linkRow.className = "card-link";
       const a = document.createElement("a");
-      a.href = buildMapsUrl(pick.name);
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = "Directions";
-      linkRow.appendChild(a);
+a.href = buildMapsUrl(pick.name);
+a.target = "_blank";
+a.rel = "noopener noreferrer";
+a.textContent = "Directions";
+
+a.addEventListener("click", () => {
+  gtag("event", "restaurant_click", {
+    restaurant: pick.name,
+    section: "host_pick",
+    action: "maps"
+  });
+});
+
+linkRow.appendChild(a);
 
       main.appendChild(badge);
       main.appendChild(title);
@@ -1374,11 +1399,20 @@ async function loadLocalPlaces() {
         encodeURIComponent(mapsQuery || place.name || "");
 
       const a = document.createElement("a");
-      a.href = mapsUrl;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = "Open in Maps";
-      linkRow.appendChild(a);
+a.href = mapsUrl;
+a.target = "_blank";
+a.rel = "noopener noreferrer";
+a.textContent = "Open in Maps";
+
+a.addEventListener("click", () => {
+  gtag("event", "restaurant_click", {
+    restaurant: place.name,
+    section: "nearby",
+    action: "maps"
+  });
+});
+
+linkRow.appendChild(a);
 
       main.appendChild(badge);
       main.appendChild(title);
