@@ -25,24 +25,6 @@
   });
 </script>
 
-<!-- GuestBites Bexley v2 router: keeps existing QR/Rebrandly link, but sends only Bexley to v2 -->
-<script>
-(function () {
-  try {
-    var params = new URLSearchParams(window.location.search);
-    var zip = (params.get('zip') || '').trim();
-    var forceV1 = params.get('forceV1') === '1';
-    var alreadyV2 = window.location.pathname.indexOf('guest-guide-v2.html') !== -1;
-
-    if (zip === '43209' && !forceV1 && !alreadyV2) {
-      window.location.replace('/guest-guide-v2.html' + window.location.search);
-    }
-  } catch (e) {
-    console.warn('GuestBites v2 router skipped', e);
-  }
-})();
-</script>
-
   <title>GuestBites – Guest Food Guide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 

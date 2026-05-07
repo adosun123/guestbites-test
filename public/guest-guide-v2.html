@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta property="og:title" content="Your GuestBites Guide" />
+  <meta property="og:description" content="Quick local picks for food, groceries, breakfast, and things to do near your stay." />
+  <meta property="og:image" content="https://try.guestbites.com/preview.png" />
+  <meta property="og:url" content="https://try.guestbites.com/guest-guide.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://try.guestbites.com/preview.png" />
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYRX4X3TPM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-PYRX4X3TPM', { send_page_view: true });
+  </script>
+
+  <title>GuestBites – Guest Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#f5f1e8; --card:#ffffff; --ink:#1c1917; --muted:#6b6258;
+      --line:#eadfce; --soft:#fff7e8; --accent:#b45309; --accent2:#0f5132; --dark:#1c1917;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{background:linear-gradient(180deg,#fff7e8,#f5f1e8);color:var(--ink);min-height:100vh;padding:1rem;display:flex;justify-content:center}
+    .page{width:100%;max-width:520px;margin:0 auto 3rem;background:var(--card);border-radius:2rem;overflow:hidden;box-shadow:0 18px 45px rgba(28,25,23,.14)}
+    .hero{background:var(--soft);padding:1.35rem 1.25rem 1.25rem;border-bottom:1px solid var(--line)}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;font-size:.82rem;font-weight:800}
+    .pill-top{background:#fff;border:1px solid var(--line);border-radius:999px;padding:.35rem .7rem;color:var(--muted)}
+    h1{font-size:1.75rem;line-height:1.08;margin:.35rem 0 .55rem;letter-spacing:-.03em}
+    .hero p{color:var(--muted);font-size:.95rem;line-height:1.5}.hero-icon{font-size:1.8rem}
+    .tags{margin-top:1rem;display:flex;gap:.45rem;flex-wrap:wrap}.tag{font-size:.74rem;border:1px solid var(--line);background:#fff;border-radius:999px;padding:.3rem .65rem;color:var(--muted);font-weight:700}
+    main{padding:1.1rem}.section{margin-top:1.25rem}.section:first-child{margin-top:0}.section-head{display:flex;justify-content:space-between;gap:1rem;align-items:end;margin-bottom:.75rem}.section-title{font-size:1.18rem;font-weight:900;letter-spacing:-.02em}.section-sub{font-size:.83rem;color:var(--muted);line-height:1.35;margin-top:.15rem}.badge{font-size:.72rem;font-weight:900;color:var(--accent);background:#ffedd5;border-radius:999px;padding:.28rem .6rem;white-space:nowrap}
+    .category-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.8rem}.cat-btn{border:1px solid var(--line);background:#fff;border-radius:1.15rem;padding:.85rem;text-align:left;min-height:6.2rem;cursor:pointer;color:var(--ink)}.cat-btn.active{background:var(--dark);color:#fff;border-color:var(--dark)}.cat-icon{font-size:1.55rem}.cat-label{font-weight:900;margin-top:.45rem;font-size:.9rem}.cat-sub{font-size:.76rem;margin-top:.2rem;color:var(--muted);line-height:1.25}.cat-btn.active .cat-sub{color:#d6d3d1}
+    .cards{display:grid;gap:.7rem}.card{border:1px solid var(--line);border-radius:1.2rem;padding:.9rem;background:#fff;display:flex;gap:.75rem;align-items:flex-start}.card.featured{background:#fff7e8;border-color:#fed7aa}.emoji{font-size:1.65rem;line-height:1}.card-main{flex:1;min-width:0}.kicker{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#a16207;font-weight:900;margin-bottom:.2rem}.card-title{font-weight:900;font-size:1rem}.card-note{color:var(--muted);font-size:.84rem;line-height:1.4;margin-top:.18rem}.tip{font-size:.76rem;color:#92400e;font-weight:800;margin-top:.45rem}.actions{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.65rem}.action{display:inline-flex;align-items:center;gap:.25rem;text-decoration:none;border-radius:999px;padding:.48rem .72rem;font-size:.78rem;font-weight:900;background:#f5f5f4;color:var(--ink);border:1px solid #e7e5e4}.action.primary{background:var(--dark);border-color:var(--dark);color:#fff}.action.green{background:#e8f5ee;border-color:#cce9d8;color:#0f5132}.action:hover{filter:brightness(.98)}
+    .partner{background:var(--dark);color:#fff;border-radius:1.25rem;padding:1rem}.partner .section-sub{color:#d6d3d1}.partner .action{background:#fff;color:var(--dark);border-color:#fff;margin-top:.7rem}
+    .local-box{border-top:1px dashed var(--line);margin-top:.8rem;padding-top:.8rem}.local-title{font-weight:900;font-size:.95rem}.local-powered{font-size:.76rem;color:var(--muted);margin-top:.1rem}.empty{font-size:.82rem;color:var(--muted);background:#fafaf9;border:1px dashed var(--line);border-radius:1rem;padding:.75rem;margin-top:.7rem;line-height:1.4}
+    .ask{background:#fff7e8;border:1px solid #fed7aa;border-radius:1.25rem;padding:1rem}.ask-row{display:flex;gap:.5rem;margin-top:.75rem}.ask input{flex:1;min-width:0;border:1px solid var(--line);border-radius:999px;padding:.75rem .9rem;font-size:.9rem}.ask button{border:0;background:var(--dark);color:#fff;border-radius:999px;padding:.75rem .95rem;font-weight:900;cursor:pointer}.quick{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.65rem}.quick button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.45rem .7rem;font-size:.78rem;font-weight:800;cursor:pointer}.answer{display:none;margin-top:.75rem;background:#fff;border:1px solid var(--line);border-radius:1rem;padding:.85rem}
+    footer{text-align:center;color:#a8a29e;font-size:.76rem;line-height:1.45;padding:1.3rem .5rem}.host-options{background:#fff7e8;border:1px solid #fed7aa;border-radius:1.25rem;padding:1rem}.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:.75rem}.option-btn{border:1px solid var(--line);background:#fff;border-radius:1rem;padding:.8rem;font-weight:900;color:var(--ink);cursor:pointer}
+    @media(min-width:640px){body{padding:2rem}.page{max-width:560px}main{padding:1.25rem}.hero{padding:1.6rem}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="topbar"><div>✨ GuestBites</div><div class="pill-top" id="location-pill">Near you</div></div>
+      <div class="hero-icon">🍽️</div>
+      <h1>Welcome to <span id="property-name">Your Stay</span></h1>
+      <p>A quick guide for what you need nearby — food, groceries, breakfast, and things to do.</p>
+      <div class="tags"><div class="tag">Curated for this stay</div><div class="tag" id="zip-tag">Near you</div></div>
+    </section>
+
+    <main>
+      <section class="section">
+        <div class="section-head">
+          <div><div class="section-title">What do you need right now?</div><div class="section-sub">Food is selected by default. Switch categories for other quick options.</div></div>
+        </div>
+        <div class="category-grid" id="category-grid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div><div class="section-title" id="active-title">Food near you</div><div class="section-sub" id="active-subtitle">Host favorites and nearby food options.</div></div>
+          <div class="badge" id="active-badge">For this stay</div>
+        </div>
+        <div class="cards" id="specific-list"></div>
+        <div class="local-box" id="live-section" style="display:none;">
+          <div class="local-title" id="live-title">More nearby</div>
+          <div class="cards" id="local-list" style="margin-top:.7rem"></div>
+        </div>
+      </section>
+
+      <section class="section" id="partner-section" style="display:none;"></section>
+
+      <section class="section host-options" id="host-options-section">
+        <div class="section-title">🏡 Host options</div>
+        <div class="section-sub">Need something extra during your stay? Message your host first.</div>
+        <div class="option-grid" id="host-options-grid">
+          <a class="option-btn" id="midstay-clean-btn" href="#" style="text-align:center;text-decoration:none;display:none;">Request mid-stay clean</a>
+        </div>
+      </section>
+
+      <footer>Guide created with <strong>GuestBites</strong> – local flavor for every stay.<br/>Feedback or questions? <a href="mailto:hello@guestbites.com">hello@guestbites.com</a></footer>
+    </main>
+  </div>
+
+<script>
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const getParam = (key, fallback='') => { const v = params.get(key); return v ? v.trim() : fallback; };
+  const zip = getParam('zip','43209');
+  const city = getParam('city', zip === '43209' ? 'Bexley' : '');
+  const propertyName = getParam('propertyName','Your Stay');
+  const isBexley = zip === '43209';
+
+  document.getElementById('property-name').textContent = propertyName;
+  document.getElementById('location-pill').textContent = (city ? city + ' · ' : '') + zip;
+  document.getElementById('zip-tag').textContent = 'Near ' + zip;
+
+  function track(eventName, payload={}){
+    const data = Object.assign({ gb_zip: zip, gb_property: propertyName }, payload);
+    try { if (window.gtag) gtag('event', eventName, data); } catch(e) { console.warn('tracking error', e); }
+  }
+
+  function mapsUrl(q){ return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); }
+  function googleUrl(q){ return 'https://www.google.com/search?q=' + encodeURIComponent(q); }
+
+  function getIcon(name){
+    const s=(name||'').toLowerCase();
+    if(s.includes('pizza')) return '🍕'; if(s.includes('giuseppe')||s.includes('italian')) return '🍝'; if(s.includes('graeter')||s.includes('ice')) return '🍦'; if(s.includes('kittie')||s.includes('coffee')) return '☕'; if(s.includes('cvs')||s.includes('pharmacy')) return '💊'; if(s.includes('kroger')||s.includes('grocery')) return '🛒'; if(s.includes('park')) return '🌳'; if(s.includes('conservatory')||s.includes('museum')) return '🏛️'; if(s.includes('main street')||s.includes('shopping')) return '🛍️'; return '🍽️';
+  }
+
+  function hostActionLinks(name){
+    const lower=(name||'').toLowerCase();
+    if(lower.includes('bexley pizza')) return [{label:'📞 Call to order', href:'tel:+16142373305', type:'call', primary:true},{label:'📋 View menu', href:'https://www.bexleypizzaplus.com/', type:'menu'}];
+    if(lower.includes('giuseppe')) return [{label:'🍽️ View menu', href:'https://www.giuseppesritrovo.com/', type:'menu', primary:true}];
+    if(lower.includes('graeter')) return [{label:'🍦 Order delivery', href:'https://www.doordash.com/store/graeters-bexley-584816/', type:'delivery', primary:true}];
+    if(lower.includes('kittie')) return [{label:'☕ View menu', href:'https://www.kittiescakes.com/', type:'menu', primary:true}];
+    return [{label:'📋 Search', href:googleUrl(name + ' menu'), type:'search', primary:true}];
+  }
+
+  let hostPicks=[];
+  for(let i=1;i<=4;i++){
+    const name=getParam(`h${i}Name`); const note=getParam(`h${i}Note`);
+    if(name) hostPicks.push({name, note: note || 'A favorite from your host.', source:'host_pick'});
+  }
+  if(!hostPicks.length){
+    hostPicks=[
+      {name:'Bexley Pizza Plus', note:'Great pizza delivery.', source:'host_pick'},
+      {name:'Giuseppe’s Ritrovo', note:'Italian dinner.', source:'host_pick'},
+      {name:'Graeter’s Ice Cream', note:'Dessert with kids.', source:'host_pick'},
+      {name:'Kittie’s Cakes', note:'Good local option for coffee, pastries, and a quick breakfast.', source:'host_pick'}
+    ];
+  }
+
+  const categories = {
+    food: { icon:'🍔', label:'Food', sub:'Dinner, takeout, delivery', title:'Food near ' + zip, subtitle:'Your host’s food picks, plus more nearby restaurants.', terms:['restaurant','pizza','takeout','delivery'] },
+    groceries: { icon:'🛒', label:'Groceries', sub:'Snacks, pharmacy, basics', title:'Groceries near ' + zip, subtitle:'Quick essentials, groceries, and pharmacy options nearby.', terms:['grocery','pharmacy','convenience store'] },
+    breakfast: { icon:'☕', label:'Breakfast', sub:'Coffee, bagels, brunch', title:'Breakfast near ' + zip, subtitle:'Coffee, pastries, breakfast, and brunch nearby.', terms:['coffee','breakfast','bakery','brunch'] },
+    things: { icon:'🎯', label:'Things To Do', sub:'Parks, activities, shopping', title:'Things To Do near ' + zip, subtitle:'Easy activities, parks, and local spots nearby.', terms:['parks','attractions','museum','shopping'] }
+  };
+
+  const curatedByCategoryBexley = {
+    groceries: [
+      {name:'Kroger', note:'Groceries and essentials nearby.', type:'specific', actions:[{label:'📍 Directions', href:mapsUrl('Kroger near 43209'), type:'maps', primary:true},{label:'Details', href:googleUrl('Kroger near 43209'), type:'details'}]},
+      {name:'CVS Pharmacy', note:'Pharmacy and quick essentials.', type:'specific', actions:[{label:'📍 Directions', href:mapsUrl('CVS Pharmacy near 43209'), type:'maps', primary:true},{label:'Details', href:googleUrl('CVS Pharmacy near 43209'), type:'details'}]}
+    ],
+    breakfast: [
+      {name:'Kittie’s Cakes', note:'Coffee, pastries, and quick breakfast.', type:'specific', actions:[{label:'☕ View menu', href:'https://www.kittiescakes.com/', type:'menu', primary:true},{label:'📍 Directions', href:mapsUrl('Kittie’s Cakes Bexley OH'), type:'maps'}]},
+      {name:'Coffee near Bexley', note:'See nearby coffee options.', type:'specific', actions:[{label:'📍 Search nearby', href:mapsUrl('coffee near 43209'), type:'maps', primary:true}]}
+    ],
+    things: [
+      {name:'Jeffrey Park', note:'Walks, playground, and green space.', type:'specific', actions:[{label:'Details', href:googleUrl('Jeffrey Park Bexley OH'), type:'details', primary:true},{label:'📍 Directions', href:mapsUrl('Jeffrey Park Bexley OH'), type:'maps'}]},
+      {name:'Franklin Park Conservatory', note:'Beautiful gardens and family activity.', type:'specific', actions:[{label:'Details', href:'https://www.fpconservatory.org/', type:'details', primary:true},{label:'📍 Directions', href:mapsUrl('Franklin Park Conservatory Columbus OH'), type:'maps'}]},
+      {name:'Main Street Bexley', note:'Shops, cafes, and local walkable spots.', type:'specific', actions:[{label:'Details', href:googleUrl('Main Street Bexley shops cafes'), type:'details', primary:true},{label:'📍 Directions', href:mapsUrl('Main Street Bexley OH'), type:'maps'}]}
+    ]
+  };
+
+  function genericCards(category){
+    if(category==='groceries') return [{name:'Groceries near ' + zip, note:'Search live nearby grocery options.', actions:[{label:'📍 Search nearby', href:mapsUrl('grocery near ' + zip), type:'maps', primary:true}]}];
+    if(category==='breakfast') return [{name:'Coffee & breakfast near ' + zip, note:'Search live nearby breakfast options.', actions:[{label:'📍 Search nearby', href:mapsUrl('coffee breakfast near ' + zip), type:'maps', primary:true}]}];
+    if(category==='things') return [{name:'Things to do near ' + zip, note:'Search live nearby attractions and parks.', actions:[{label:'📍 Search nearby', href:mapsUrl('things to do near ' + zip), type:'maps', primary:true}]}];
+    return [];
+  }
+
+  function foodCards(){
+    return hostPicks.map((p, idx) => ({
+      name:p.name, note:p.note, source:'host_pick', featured:idx===0,
+      actions:[...hostActionLinks(p.name), {label:'📍 Directions', href:mapsUrl(p.name + ' ' + zip), type:'maps'}]
+    }));
+  }
+
+  const DEFAULT_CATEGORY = 'food';
+  let activeCategory = DEFAULT_CATEGORY;
+  const catGrid=document.getElementById('category-grid');
+  Object.entries(categories).forEach(([id,c])=>{
+    const b=document.createElement('button'); b.className='cat-btn'; b.dataset.category=id;
+    b.innerHTML=`<div class="cat-icon">${c.icon}</div><div class="cat-label">${c.label}</div><div class="cat-sub">${c.sub}</div>`;
+    b.addEventListener('click',(event)=>{ event.preventDefault(); activeCategory=id; track('category_selected',{category:id, section:'need_selector'}); renderCategory(); loadLocalPlaces(activeCategory); });
+    catGrid.appendChild(b);
+  });
+
+  function renderCard(item, section, index){
+    const card=document.createElement('article'); card.className='card' + (item.featured ? ' featured' : '');
+    const emoji=document.createElement('div'); emoji.className='emoji'; emoji.textContent=getIcon(item.name);
+    const main=document.createElement('div'); main.className='card-main';
+    const kicker=document.createElement('div'); kicker.className='kicker'; kicker.textContent=item.featured ? 'Best first choice' : (item.source==='host_pick' ? 'Host pick' : 'For this stay');
+    const title=document.createElement('div'); title.className='card-title'; title.textContent=item.name;
+    const note=document.createElement('div'); note.className='card-note'; note.textContent=item.note || '';
+    const actions=document.createElement('div'); actions.className='actions';
+    (item.actions || []).forEach(a=>{
+      const link=document.createElement('a'); link.className='action' + (a.primary ? ' primary' : ''); link.href=a.href; link.textContent=a.label; link.target=a.href.startsWith('tel:') ? '_self' : '_blank'; link.rel=a.href.startsWith('tel:') ? '' : 'noopener noreferrer';
+      link.addEventListener('click',()=>track('guest_action_click',{section, category:activeCategory, item:item.name, action:a.type || a.label, label:a.label, position:index+1}));
+      actions.appendChild(link);
+    });
+    main.appendChild(kicker); main.appendChild(title); main.appendChild(note);
+    if(item.source==='host_pick') { const tip=document.createElement('div'); tip.className='tip'; tip.textContent='⭐ GuestBites Tip · Start here if you’re not sure where to go.'; main.appendChild(tip); }
+    main.appendChild(actions); card.appendChild(emoji); card.appendChild(main); return card;
+  }
+
+  function renderCategory(){
+    [...document.querySelectorAll('.cat-btn')].forEach(b=>b.classList.toggle('active', b.dataset.category===activeCategory));
+    const c=categories[activeCategory];
+    document.getElementById('active-title').textContent=c.icon + ' ' + c.title;
+    document.getElementById('active-subtitle').textContent=c.subtitle;
+    document.getElementById('active-badge').textContent= activeCategory==='food' ? 'Host favorites' : 'For this stay';
+    document.getElementById('live-title').textContent = activeCategory === 'food' ? 'More food nearby' : 'More ' + c.label.toLowerCase() + ' nearby';
+    const list=document.getElementById('specific-list'); list.innerHTML='';
+    let cards=[];
+    if(activeCategory==='food') cards=foodCards();
+    else cards=(isBexley ? (curatedByCategoryBexley[activeCategory] || []) : genericCards(activeCategory));
+    cards.forEach((item,i)=>list.appendChild(renderCard(item,'category_specific',i)));
+  }
+
+  function renderPartner(){
+    if(!isBexley) return;
+    const sec=document.getElementById('partner-section');
+    sec.style.display='block'; sec.className='section partner';
+    sec.innerHTML=`<div class="section-title">Featured Local Partner</div><div class="section-sub">Special picks curated for this area.</div><div style="margin-top:.75rem;font-weight:900">Cameron Mitchell Restaurants</div><div class="section-sub">Butcher & Rose · Official website & menu</div><a class="action" href="https://butcherandrose.com/?gb_source=featured_partner&gb_zip=${encodeURIComponent(zip)}" target="_blank" rel="noopener noreferrer">View menu</a>`;
+    sec.querySelector('a').addEventListener('click',()=>track('featured_partner_click',{partner:'cameron_mitchell', restaurant:'Butcher & Rose', section:'featured_partner'}));
+  }
+
+  async function loadLocalPlaces(category){
+    const localList=document.getElementById('local-list');
+    const liveSection=document.getElementById('live-section');
+    if (!localList || !liveSection) return;
+    localList.innerHTML='';
+    liveSection.style.display='none';
+    try{
+      const url = `/api/places?zip=${encodeURIComponent(zip)}&category=${encodeURIComponent(category)}&terms=${encodeURIComponent(categories[category].terms.join(','))}`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('Places API error ' + res.status);
+      const data = await res.json();
+      const places = Array.isArray(data.results) ? data.results : (Array.isArray(data) ? data : []);
+      const already = new Set([...hostPicks.map(p=>p.name.toLowerCase()), 'butcher & rose']);
+      const filtered = places.filter(p=>p && p.name && !already.has(String(p.name).toLowerCase())).slice(0,6);
+      if(!filtered.length){ liveSection.style.display='none'; return; }
+      filtered.forEach((p,i)=>{
+        const name=p.name || 'Local spot';
+        const categoryName=(p.categories && p.categories[0] && p.categories[0].name) || 'Nearby option';
+        const address=(p.location && p.location.formatted_address) || '';
+        const item={name, note:[categoryName,address].filter(Boolean).join(' · '), actions:[{label:'Open in Maps', href:mapsUrl([name,address||zip].join(' ')), type:'maps', primary:true}]};
+        localList.appendChild(renderCard(item,'live_api',i));
+      });
+      liveSection.style.display='block';
+    }catch(e){ console.warn(e); liveSection.style.display='none'; }
+  }
+
+  function askGuestBites(){
+    const q=document.getElementById('gb-question').value.trim(); if(!q) return;
+    track('ask_guestbites',{query:q, section:'ask_guestbites'});
+    const lower=q.toLowerCase();
+    let match = hostPicks.find(p => lower.includes('pizza') && p.name.toLowerCase().includes('pizza')) ||
+                hostPicks.find(p => lower.includes('italian') && p.name.toLowerCase().includes('giuseppe')) ||
+                hostPicks.find(p => lower.includes('dessert') && p.name.toLowerCase().includes('graeter')) ||
+                hostPicks.find(p => lower.includes('breakfast') && p.name.toLowerCase().includes('kittie')) ||
+                hostPicks[0];
+    const answer=document.getElementById('gb-answer'); answer.style.display='block';
+    answer.innerHTML=`<div class="kicker">Best match</div><div class="card-title">${getIcon(match.name)} ${match.name}</div><div class="card-note">${match.note}</div>`;
+  }
+  document.querySelectorAll('.option-btn').forEach(b=>b.addEventListener('click',()=>track('host_option_click',{option:b.dataset.option, section:'host_options'})));
+
+  // Force Food as the first visible category on page load.
+  activeCategory = DEFAULT_CATEGORY;
+  renderPartner();
+
+  function setupHostOptions(){
+    const hostEmail = getParam('hostEmail','');
+    const section = document.getElementById('host-options-section');
+    const btn = document.getElementById('midstay-clean-btn');
+    if(!section || !btn) return;
+    if(!hostEmail){
+      section.style.display = 'none';
+      return;
+    }
+    const subject = encodeURIComponent('Mid-stay clean request');
+    const body = encodeURIComponent(`Hi,\n\nI’d like to request a mid-stay clean for ${propertyName || 'this stay'}.\n\nThank you.`);
+    btn.href = `mailto:${encodeURIComponent(hostEmail)}?subject=${subject}&body=${body}`;
+    btn.style.display = 'block';
+    btn.addEventListener('click', () => track('host_option_click', {
+      option: 'mid_stay_clean',
+      section: 'host_options',
+      host_email_present: true
+    }));
+  }
+
+  setupHostOptions();
+  renderCategory();
+  loadLocalPlaces(DEFAULT_CATEGORY);
+})();
+</script>
+</body>
+</html>
