@@ -69,12 +69,9 @@
           <div class="badge" id="active-badge">For this stay</div>
         </div>
         <div class="cards" id="specific-list"></div>
-        <section class="section partner" id="partner-section" style="display:none;"></section>
-        <div class="local-box" id="live-section" style="display:none;">
-          <div class="local-title" id="live-title">More nearby</div>
-          <div class="cards" id="local-list" style="margin-top:.7rem"></div>
-        </div>
       </section>
+
+      <section class="section" id="partner-section" style="display:none;"></section>
 
       <section class="section host-options" id="host-options-section">
         <div class="section-title">🏡 Host options</div>
@@ -180,7 +177,7 @@
   Object.entries(categories).forEach(([id,c])=>{
     const b=document.createElement('button'); b.className='cat-btn'; b.dataset.category=id;
     b.innerHTML=`<div class="cat-icon">${c.icon}</div><div class="cat-label">${c.label}</div><div class="cat-sub">${c.sub}</div>`;
-    b.addEventListener('click',(event)=>{ event.preventDefault(); activeCategory=id; track('category_selected',{category:id, section:'need_selector'}); renderCategory(); loadLocalPlaces(activeCategory); });
+    b.addEventListener('click',(event)=>{ event.preventDefault(); activeCategory=id; track('category_selected',{category:id, section:'need_selector'}); renderCategory(); });
     catGrid.appendChild(b);
   });
 
@@ -208,7 +205,6 @@
     document.getElementById('active-title').textContent=c.icon + ' ' + c.title;
     document.getElementById('active-subtitle').textContent=c.subtitle;
     document.getElementById('active-badge').textContent= activeCategory==='food' ? 'Host favorites' : 'For this stay';
-    document.getElementById('live-title').textContent = activeCategory === 'food' ? 'More food nearby' : 'More ' + c.label.toLowerCase() + ' nearby';
     const list=document.getElementById('specific-list'); list.innerHTML='';
     let cards=[];
     if(activeCategory==='food') cards=foodCards();
@@ -222,32 +218,6 @@
     sec.style.display='block'; sec.className='section partner';
     sec.innerHTML=`<div class="section-title">Featured Local Partner</div><div class="section-sub">Special picks curated for this area.</div><div style="margin-top:.75rem;font-weight:900">Cameron Mitchell Restaurants</div><div class="section-sub">Butcher & Rose · Official website & menu</div><a class="action" href="https://butcherandrose.com/?gb_source=featured_partner&gb_zip=${encodeURIComponent(zip)}" target="_blank" rel="noopener noreferrer">View menu</a>`;
     sec.querySelector('a').addEventListener('click',()=>track('featured_partner_click',{partner:'cameron_mitchell', restaurant:'Butcher & Rose', section:'featured_partner'}));
-  }
-
-  async function loadLocalPlaces(category){
-    const localList=document.getElementById('local-list');
-    const liveSection=document.getElementById('live-section');
-    if (!localList || !liveSection) return;
-    localList.innerHTML='';
-    liveSection.style.display='none';
-    try{
-      const url = `/api/places?zip=${encodeURIComponent(zip)}&category=${encodeURIComponent(category)}&terms=${encodeURIComponent(categories[category].terms.join(','))}`;
-      const res = await fetch(url);
-      if(!res.ok) throw new Error('Places API error ' + res.status);
-      const data = await res.json();
-      const places = Array.isArray(data.results) ? data.results : (Array.isArray(data) ? data : []);
-      const already = new Set([...hostPicks.map(p=>p.name.toLowerCase()), 'butcher & rose']);
-      const filtered = places.filter(p=>p && p.name && !already.has(String(p.name).toLowerCase())).slice(0,6);
-      if(!filtered.length){ liveSection.style.display='none'; return; }
-      filtered.forEach((p,i)=>{
-        const name=p.name || 'Local spot';
-        const categoryName=(p.categories && p.categories[0] && p.categories[0].name) || 'Nearby option';
-        const address=(p.location && p.location.formatted_address) || '';
-        const item={name, note:[categoryName,address].filter(Boolean).join(' · '), actions:[{label:'Open in Maps', href:mapsUrl([name,address||zip].join(' ')), type:'maps', primary:true}]};
-        localList.appendChild(renderCard(item,'live_api',i));
-      });
-      liveSection.style.display='block';
-    }catch(e){ console.warn(e); liveSection.style.display='none'; }
   }
 
   function askGuestBites(){
@@ -290,7 +260,6 @@
 
   setupHostOptions();
   renderCategory();
-  loadLocalPlaces(DEFAULT_CATEGORY);
 })();
 </script>
 </body>
